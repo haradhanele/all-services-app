@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK from Zip
 
 on:
   push:
@@ -22,11 +22,26 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew || true
-
-    - name: Build with Gradle Wrapper (or fallback)
+    - name: Find and Extract ZIP
       run: |
+        ZIP_FILE=$(find . -maxdepth 2 -name "*.zip" | head -n 1)
+        if [ -n "$ZIP_FILE" ]; then
+          echo "Extracting $ZIP_FILE"
+          unzip -o "$ZIP_FILE" -d extracted_app
+          PROJECT_DIR=$(find extracted_app -name "settings.gradle*" -o -name "build.gradle*" | head -n 1 | xargs dirname)
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+        else
+          echo "PROJECT_DIR=." >> $GITHUB_ENV
+        fi
+
+    - name: Make gradlew executable
+      run: |
+        cd $PROJECT_DIR
+        chmod +x gradlew || true
+
+    - name: Build APK
+      run: |
+        cd $PROJECT_DIR
         if [ -f "./gradlew" ]; then
           ./gradlew assembleDebug --stacktrace
         else
