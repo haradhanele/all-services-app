@@ -34,6 +34,42 @@ jobs:
           echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
+    - name: Add Mock google-services.json
+      run: |
+        MOCK_JSON='{
+          "project_info": {
+            "project_number": "123456789012",
+            "project_id": "samiti-app-mock",
+            "storage_bucket": "samiti-app-mock.appspot.com"
+          },
+          "client": [
+            {
+              "client_info": {
+                "mobilesdk_app_id": "1:123456789012:android:abcdef123456",
+                "android_client_info": {
+                  "package_name": "com.example.samitiapp"
+                }
+              },
+              "oauth_client": [],
+              "api_key": [
+                {
+                  "current_key": "mock_api_key"
+                }
+              ],
+              "services": {
+                "appinvite_service": {
+                  "other_platform_oauth_client": []
+                }
+              }
+            }
+          ],
+          "configuration_version": "1"
+        }'
+        find "$PROJECT_DIR" -type d -name "app" | while read -r app_dir; do
+          echo "$MOCK_JSON" > "$app_dir/google-services.json"
+          echo "Created mock google-services.json in $app_dir"
+        done
+
     - name: Make gradlew executable
       run: |
         cd $PROJECT_DIR
