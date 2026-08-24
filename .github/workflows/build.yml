@@ -34,8 +34,16 @@ jobs:
           echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
-    - name: Add Mock google-services.json with correct package
+    - name: Generate debug.keystore & Mock google-services.json
       run: |
+        # 1. Generate debug.keystore in project and app directories
+        keytool -genkey -v -keystore "$PROJECT_DIR/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+        find "$PROJECT_DIR" -type d -name "app" | while read -r app_dir; do
+          cp "$PROJECT_DIR/debug.keystore" "$app_dir/debug.keystore" || true
+        done
+        cp "$PROJECT_DIR/debug.keystore" ./debug.keystore || true
+
+        # 2. Add Mock google-services.json with correct package
         MOCK_JSON='{
           "project_info": {
             "project_number": "123456789012",
@@ -67,7 +75,6 @@ jobs:
         }'
         find "$PROJECT_DIR" -type d -name "app" | while read -r app_dir; do
           echo "$MOCK_JSON" > "$app_dir/google-services.json"
-          echo "Created mock google-services.json in $app_dir"
         done
 
     - name: Make gradlew executable
@@ -89,3 +96,4 @@ jobs:
       with:
         name: Samiti-App-APK
         path: "**/build/outputs/apk/debug/*.apk"
+        
