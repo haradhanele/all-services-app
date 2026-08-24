@@ -41,125 +41,34 @@ jobs:
           echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
-    - name: Fix Keystore, Configs and Broken Screens
+    - name: Fix Keystore and Configs
       run: |
-        # 1. Create debug.keystore
         mkdir -p ~/.android
         keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-        
         cp ~/.android/debug.keystore "$PROJECT_DIR/debug.keystore" || true
         find "$PROJECT_DIR" -maxdepth 3 -type d -name "app" | while read -r app_dir; do
           cp ~/.android/debug.keystore "$app_dir/debug.keystore" || true
         done
 
-        # 2. Add Mock google-services.json
-        MOCK_JSON='{
-          "project_info": {
-            "project_number": "123456789012",
-            "project_id": "samiti-app-mock",
-            "storage_bucket": "samiti-app-mock.appspot.com"
-          },
-          "client": [
-            {
-              "client_info": {
-                "mobilesdk_app_id": "1:123456789012:android:abcdef123456",
-                "android_client_info": {
-                  "package_name": "com.aistudio.samitifund.mgxpqr"
-                }
-              },
-              "oauth_client": [],
-              "api_key": [
-                {
-                  "current_key": "mock_api_key"
-                }
-              ],
-              "services": {
-                "appinvite_service": {
-                  "other_platform_oauth_client": []
-                }
-              }
-            }
-          ],
-          "configuration_version": "1"
-        }'
+        MOCK_JSON='{"project_info":{"project_number":"123456789012","project_id":"samiti-app-mock","storage_bucket":"samiti-app-mock.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:123456789012:android:abcdef123456","android_client_info":{"package_name":"com.aistudio.samitifund.mgxpqr"}},"oauth_client":[],"api_key":[{"current_key":"mock_api_key"}],"services":{"appinvite_service":{"other_platform_oauth_client":[]}}}],"configuration_version":"1"}'
         find "$PROJECT_DIR" -maxdepth 3 -type d -name "app" | while read -r app_dir; do
           echo "$MOCK_JSON" > "$app_dir/google-services.json"
         done
 
-        # 3. Clean up invalid signing configs
         find "$PROJECT_DIR" -name "build.gradle*" | while read -r gfile; do
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-        # 4. Patch ReportsScreen.kt cleanly
+    - name: Clean Broken Screen Files
+      run: |
+        REPORTS_CODE='package com.example.ui.screens\n\nimport androidx.compose.foundation.layout.*\nimport androidx.compose.foundation.shape.CircleShape\nimport androidx.compose.material3.*\nimport androidx.compose.runtime.*\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\n\n@OptIn(ExperimentalMaterial3Api::class)\n@Composable\nfun ReportsScreen(onNavigateBack: () -> Unit = {}) {\n    Scaffold(topBar = { TopAppBar(title = { Text("Reports") }) }) {\n        Surface(modifier = Modifier.fillMaxSize().padding(it), shape = CircleShape) {\n            Box(contentAlignment = Alignment.Center) { Text("Reports") }\n        }\n    }\n}'
         find "$PROJECT_DIR" -name "ReportsScreen.kt" | while read -r rfile; do
-          cat << 'EOF' > "$rfile"
-package com.example.ui.screens
-
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ReportsScreen(onNavigateBack: () -> Unit = {}) {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Reports") })
-        }
-    ) { innerPadding ->
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            shape = CircleShape
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text("Reports Screen")
-            }
-        }
-    }
-}
-EOF
+          printf "%b" "$REPORTS_CODE" > "$rfile"
         done
 
-        # 5. Patch SocietyChatScreen.kt with flexible arguments
+        CHAT_CODE='package com.example.ui.screens\n\nimport androidx.compose.foundation.layout.*\nimport androidx.compose.material3.*\nimport androidx.compose.runtime.*\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\n\n@OptIn(ExperimentalMaterial3Api::class)\n@Composable\nfun SocietyChatScreen(viewModel: Any? = null, onNavigateToMemberProfile: ((Any?) -> Unit)? = null, onNavigateBack: () -> Unit = {}) {\n    Scaffold(topBar = { TopAppBar(title = { Text("Chat") }) }) {\n        Box(modifier = Modifier.fillMaxSize().padding(it), contentAlignment = Alignment.Center) {\n            Text("Chat Screen")\n        }\n    }\n}'
         find "$PROJECT_DIR" -name "SocietyChatScreen.kt" | while read -r cfile; do
-          cat << 'EOF' > "$cfile"
-package com.example.ui.screens
-
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SocietyChatScreen(
-    viewModel: Any? = null,
-    onNavigateToMemberProfile: ((Any?) -> Unit)? = null,
-    onNavigateBack: () -> Unit = {}
-) {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Society Chat") })
-        }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("Chat Screen")
-        }
-    }
-}
-EOF
+          printf "%b" "$CHAT_CODE" > "$cfile"
         done
 
     - name: Build APK
