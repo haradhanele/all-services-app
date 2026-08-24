@@ -61,7 +61,7 @@ jobs:
 
     - name: Clean Broken Screen Files
       run: |
-        REPORTS_CODE='package com.example.ui.screens\n\nimport androidx.compose.foundation.layout.*\nimport androidx.compose.foundation.shape.CircleShape\nimport androidx.compose.material3.*\nimport androidx.compose.runtime.*\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\n\n@OptIn(ExperimentalMaterial3Api::class)\n@Composable\nfun ReportsScreen(onNavigateBack: () -> Unit = {}) {\n    Scaffold(topBar = { TopAppBar(title = { Text("Reports") }) }) {\n        Surface(modifier = Modifier.fillMaxSize().padding(it), shape = CircleShape) {\n            Box(contentAlignment = Alignment.Center) { Text("Reports") }\n        }\n    }\n}'
+        REPORTS_CODE='package com.example.ui.screens\n\nimport androidx.compose.foundation.layout.*\nimport androidx.compose.material3.*\nimport androidx.compose.runtime.*\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\n\n@OptIn(ExperimentalMaterial3Api::class)\n@Composable\nfun ReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {\n    Scaffold(topBar = { TopAppBar(title = { Text("Reports") }) }) {\n        Box(modifier = Modifier.fillMaxSize().padding(it), contentAlignment = Alignment.Center) {\n            Text("Reports Screen")\n        }\n    }\n}'
         find "$PROJECT_DIR" -name "ReportsScreen.kt" | while read -r rfile; do
           printf "%b" "$REPORTS_CODE" > "$rfile"
         done
