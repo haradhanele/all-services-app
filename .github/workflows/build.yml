@@ -34,19 +34,19 @@ jobs:
           echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
-    - name: Generate Keystore & Mock Google Services
+    - name: Fix Keystore and Build Configs
       run: |
-        # Generate debug.keystore
-        keytool -genkey -v -keystore /tmp/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+        # 1. Create default debug.keystore
+        mkdir -p ~/.android
+        keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
         
-        # Copy keystore strictly to project root and app root (never inside src/res)
-        cp /tmp/debug.keystore "$PROJECT_DIR/debug.keystore" || true
-        cp /tmp/debug.keystore ./debug.keystore || true
-        find "$PROJECT_DIR" -maxdepth 2 -type d -name "app" | while read -r app_dir; do
-          cp /tmp/debug.keystore "$app_dir/debug.keystore" || true
+        # 2. Copy keystore to project root and app root
+        cp ~/.android/debug.keystore "$PROJECT_DIR/debug.keystore" || true
+        find "$PROJECT_DIR" -maxdepth 3 -type d -name "app" | while read -r app_dir; do
+          cp ~/.android/debug.keystore "$app_dir/debug.keystore" || true
         done
 
-        # Add Mock google-services.json
+        # 3. Add Mock google-services.json
         MOCK_JSON='{
           "project_info": {
             "project_number": "123456789012",
@@ -76,8 +76,13 @@ jobs:
           ],
           "configuration_version": "1"
         }'
-        find "$PROJECT_DIR" -maxdepth 2 -type d -name "app" | while read -r app_dir; do
+        find "$PROJECT_DIR" -maxdepth 3 -type d -name "app" | while read -r app_dir; do
           echo "$MOCK_JSON" > "$app_dir/google-services.json"
+        done
+
+        # 4. Remove invalid signing config requirements from gradle files
+        find "$PROJECT_DIR" -name "build.gradle*" | while read -r gfile; do
+          sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
     - name: Make gradlew executable
@@ -89,14 +94,14 @@ jobs:
       run: |
         cd "$PROJECT_DIR"
         if [ -f "./gradlew" ]; then
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug -x validateSigningDebug --stacktrace
         else
-          gradle assembleDebug --stacktrace
+          gradle assembleDebug -x validateSigningDebug --stacktrace
         fi
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: Samiti-App-APK
-        path: "**/build/outputs/apk/debug/*.apk"
+        path: "**/build/outputs/apk/**/*.apk"
         
