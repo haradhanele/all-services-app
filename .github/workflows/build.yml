@@ -34,7 +34,7 @@ jobs:
           echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
-    - name: Add Mock google-services.json
+    - name: Add Mock google-services.json with correct package
       run: |
         MOCK_JSON='{
           "project_info": {
@@ -47,7 +47,7 @@ jobs:
               "client_info": {
                 "mobilesdk_app_id": "1:123456789012:android:abcdef123456",
                 "android_client_info": {
-                  "package_name": "com.example.samitiapp"
+                  "package_name": "com.aistudio.samitifund.mgxpqr"
                 }
               },
               "oauth_client": [],
@@ -89,4 +89,3 @@ jobs:
       with:
         name: Samiti-App-APK
         path: "**/build/outputs/apk/debug/*.apk"
-        
