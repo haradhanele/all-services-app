@@ -41,19 +41,18 @@ jobs:
           echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
-    - name: Fix Keystore and Build Configs
+    - name: Fix Keystore, Configs and Source Code Errors
       run: |
         # 1. Create default debug.keystore
         mkdir -p ~/.android
         keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
         
-        # 2. Copy keystore to project root and app root
         cp ~/.android/debug.keystore "$PROJECT_DIR/debug.keystore" || true
         find "$PROJECT_DIR" -maxdepth 3 -type d -name "app" | while read -r app_dir; do
           cp ~/.android/debug.keystore "$app_dir/debug.keystore" || true
         done
 
-        # 3. Add Mock google-services.json
+        # 2. Add Mock google-services.json
         MOCK_JSON='{
           "project_info": {
             "project_number": "123456789012",
@@ -87,9 +86,21 @@ jobs:
           echo "$MOCK_JSON" > "$app_dir/google-services.json"
         done
 
-        # 4. Clean up invalid configs in build scripts
+        # 3. Clean up invalid signing configs
         find "$PROJECT_DIR" -name "build.gradle*" | while read -r gfile; do
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
+        done
+
+        # 4. Patch ReportsScreen.kt imports
+        find "$PROJECT_DIR" -name "ReportsScreen.kt" | while read -r rfile; do
+          sed -i '1s/^/import androidx.compose.material3.Surface\nimport androidx.compose.foundation.shape.CircleShape\n/' "$rfile" || true
+        done
+
+        # 5. Patch SocietyChatScreen.kt
+        find "$PROJECT_DIR" -name "SocietyChatScreen.kt" | while read -r cfile; do
+          sed -i '1s/^/import androidx.compose.runtime.getValue\nimport androidx.compose.runtime.setValue\nimport androidx.compose.ui.Alignment\n/' "$cfile" || true
+          sed -i 's/verticalAlignment = Alignment.Horizontal/horizontalAlignment = Alignment.CenterHorizontally/g' "$cfile" || true
+          sed -i 's/Alignment.Horizontal/Alignment.CenterHorizontally/g' "$cfile" || true
         done
 
     - name: Build APK
