@@ -34,17 +34,16 @@ jobs:
           echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
-    - name: Generate Keystore & Configs
+    - name: Generate Keystore & Mock Google Services
       run: |
         # Generate debug.keystore
         keytool -genkey -v -keystore /tmp/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
         
-        # Copy keystore to all possible directories
+        # Copy keystore strictly to project root and app root (never inside src/res)
         cp /tmp/debug.keystore "$PROJECT_DIR/debug.keystore" || true
-        cp /tmp/debug.keystore extracted_app/debug.keystore || true
         cp /tmp/debug.keystore ./debug.keystore || true
-        find . -type d | while read -r d; do
-          cp /tmp/debug.keystore "$d/debug.keystore" 2>/dev/null || true
+        find "$PROJECT_DIR" -maxdepth 2 -type d -name "app" | while read -r app_dir; do
+          cp /tmp/debug.keystore "$app_dir/debug.keystore" || true
         done
 
         # Add Mock google-services.json
@@ -77,7 +76,7 @@ jobs:
           ],
           "configuration_version": "1"
         }'
-        find . -type d -name "app" | while read -r app_dir; do
+        find "$PROJECT_DIR" -maxdepth 2 -type d -name "app" | while read -r app_dir; do
           echo "$MOCK_JSON" > "$app_dir/google-services.json"
         done
 
