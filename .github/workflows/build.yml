@@ -30,7 +30,13 @@ jobs:
         if [ -n "$ZIP_FILE" ]; then
           echo "Extracting $ZIP_FILE"
           unzip -o "$ZIP_FILE" -d extracted_app
-          PROJECT_DIR=$(find extracted_app -name "settings.gradle*" -o -name "build.gradle*" | head -n 1 | xargs dirname)
+          # Look specifically for settings.gradle (the true root project)
+          SETTINGS_FILE=$(find extracted_app -name "settings.gradle*" | head -n 1)
+          if [ -n "$SETTINGS_FILE" ]; then
+            PROJECT_DIR=$(dirname "$SETTINGS_FILE")
+          else
+            PROJECT_DIR=$(find extracted_app -name "build.gradle*" | head -n 1 | xargs dirname)
+          fi
           echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
         else
           echo "PROJECT_DIR=." >> $GITHUB_ENV
@@ -82,20 +88,15 @@ jobs:
           echo "$MOCK_JSON" > "$app_dir/google-services.json"
         done
 
-        # 4. Suppress compiler mismatch and remove hardcoded debug signing
+        # 4. Clean up invalid configs in build scripts
         find "$PROJECT_DIR" -name "build.gradle*" | while read -r gfile; do
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
-          echo -e '\nandroid { composeOptions { kotlinCompilerExtensionVersion = "1.5.14" } }' >> "$gfile" || true
         done
 
-    - name: Ensure Wrapper and Build APK
+    - name: Build APK
       run: |
         cd "$PROJECT_DIR"
-        if [ ! -f "./gradlew" ]; then
-          gradle wrapper
-        fi
-        chmod +x gradlew || true
-        ./gradlew assembleDebug -x validateSigningDebug -Pkotlin.compiler.suppressKotlinVersionCompatibilityCheck=true --stacktrace
+        gradle assembleDebug -x validateSigningDebug -Pkotlin.compiler.suppressKotlinVersionCompatibilityCheck=true --stacktrace
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
