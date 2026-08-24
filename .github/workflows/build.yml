@@ -34,16 +34,20 @@ jobs:
           echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
-    - name: Generate debug.keystore & Mock google-services.json
+    - name: Generate Keystore & Configs
       run: |
-        # 1. Generate debug.keystore in project and app directories
-        keytool -genkey -v -keystore "$PROJECT_DIR/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-        find "$PROJECT_DIR" -type d -name "app" | while read -r app_dir; do
-          cp "$PROJECT_DIR/debug.keystore" "$app_dir/debug.keystore" || true
+        # Generate debug.keystore
+        keytool -genkey -v -keystore /tmp/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+        
+        # Copy keystore to all possible directories
+        cp /tmp/debug.keystore "$PROJECT_DIR/debug.keystore" || true
+        cp /tmp/debug.keystore extracted_app/debug.keystore || true
+        cp /tmp/debug.keystore ./debug.keystore || true
+        find . -type d | while read -r d; do
+          cp /tmp/debug.keystore "$d/debug.keystore" 2>/dev/null || true
         done
-        cp "$PROJECT_DIR/debug.keystore" ./debug.keystore || true
 
-        # 2. Add Mock google-services.json with correct package
+        # Add Mock google-services.json
         MOCK_JSON='{
           "project_info": {
             "project_number": "123456789012",
@@ -73,18 +77,18 @@ jobs:
           ],
           "configuration_version": "1"
         }'
-        find "$PROJECT_DIR" -type d -name "app" | while read -r app_dir; do
+        find . -type d -name "app" | while read -r app_dir; do
           echo "$MOCK_JSON" > "$app_dir/google-services.json"
         done
 
     - name: Make gradlew executable
       run: |
-        cd $PROJECT_DIR
+        cd "$PROJECT_DIR"
         chmod +x gradlew || true
 
     - name: Build APK
       run: |
-        cd $PROJECT_DIR
+        cd "$PROJECT_DIR"
         if [ -f "./gradlew" ]; then
           ./gradlew assembleDebug --stacktrace
         else
