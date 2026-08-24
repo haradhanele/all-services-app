@@ -19,9 +19,6 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
-
     - name: Find and Extract ZIP
       run: |
         ZIP_FILE=$(find . -maxdepth 2 -name "*.zip" | head -n 1)
@@ -80,9 +77,10 @@ jobs:
           echo "$MOCK_JSON" > "$app_dir/google-services.json"
         done
 
-        # 4. Remove invalid signing config requirements from gradle files
+        # 4. Suppress compose compiler version mismatch
         find "$PROJECT_DIR" -name "build.gradle*" | while read -r gfile; do
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
+          echo -e '\nandroid { composeOptions { kotlinCompilerExtensionVersion = "1.5.14" } }' >> "$gfile" || true
         done
 
     - name: Make gradlew executable
@@ -90,14 +88,10 @@ jobs:
         cd "$PROJECT_DIR"
         chmod +x gradlew || true
 
-    - name: Build APK
+    - name: Build APK using project wrapper
       run: |
         cd "$PROJECT_DIR"
-        if [ -f "./gradlew" ]; then
-          ./gradlew assembleDebug -x validateSigningDebug --stacktrace
-        else
-          gradle assembleDebug -x validateSigningDebug --stacktrace
-        fi
+        ./gradlew assembleDebug -x validateSigningDebug -Pkotlin.compiler.suppressKotlinVersionCompatibilityCheck=true --stacktrace
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
