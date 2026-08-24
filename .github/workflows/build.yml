@@ -41,6 +41,15 @@ jobs:
           echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
+    - name: Replace App Name with All Services Group
+      run: |
+        find "$PROJECT_DIR" -type f \( -name "*.kt" -o -name "*.xml" -o -name "*.gradle*" \) | while read -r file; do
+          sed -i 's/Samiti Fund/All Services Group/g' "$file" || true
+          sed -i 's/SamitiFund/AllServicesGroup/g' "$file" || true
+          sed -i 's/Samiti fund/All services group/g' "$file" || true
+          sed -i 's/samiti fund/All services group/g' "$file" || true
+        done
+
     - name: Fix Keystore and Configs
       run: |
         mkdir -p ~/.android
@@ -59,11 +68,128 @@ jobs:
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-    - name: Clean Broken Screen Files
+    - name: Clean Broken Screen Files and Add Rich Reports
       run: |
-        REPORTS_CODE='package com.example.ui.screens\n\nimport androidx.compose.foundation.layout.*\nimport androidx.compose.material3.*\nimport androidx.compose.runtime.*\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\n\n@OptIn(ExperimentalMaterial3Api::class)\n@Composable\nfun ReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {\n    Scaffold(topBar = { TopAppBar(title = { Text("Reports") }) }) {\n        Box(modifier = Modifier.fillMaxSize().padding(it), contentAlignment = Alignment.Center) {\n            Text("Reports Screen")\n        }\n    }\n}'
+        REPORTS_CODE='package com.example.ui.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReportsScreen(
+    viewModel: Any? = null,
+    onNavigateToSettings: (() -> Unit)? = null,
+    onNavigateBack: () -> Unit = {}
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Financial Reports", fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            )
+        }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Text(text = "Total Fund Collected", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                        Text(text = "₹5,400.00", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(text = "Active Members: 17", color = Color.White, fontSize = 14.sp)
+                            Text(text = "Target: ₹10,200", color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
+                        }
+                    }
+                }
+            }
+
+            item {
+                Text(text = "Monthly Breakdown", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(text = "July 2026", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(text = "₹2,700.00", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(text = "Paid Members: 9 | Pending: 8", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Divider(modifier = Modifier.padding(vertical = 10.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(text = "August 2026", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(text = "₹2,700.00", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(text = "Paid Members: 9 | Pending: 8", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+
+            item {
+                Text(text = "Summary Statistics", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            }
+
+            item {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Card(
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Paid Total", color = Color(0xFF2E7D32), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                            Text(text = "₹5,400", color = Color(0xFF1B5E20), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    Card(
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Due Total", color = Color(0xFFC62828), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                            Text(text = "₹4,800", color = Color(0xFFB71C1C), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+'
         find "$PROJECT_DIR" -name "ReportsScreen.kt" | while read -r rfile; do
-          printf "%b" "$REPORTS_CODE" > "$rfile"
+          printf "%s" "$REPORTS_CODE" > "$rfile"
         done
 
         CHAT_CODE='package com.example.ui.screens\n\nimport androidx.compose.foundation.layout.*\nimport androidx.compose.material3.*\nimport androidx.compose.runtime.*\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\n\n@OptIn(ExperimentalMaterial3Api::class)\n@Composable\nfun SocietyChatScreen(viewModel: Any? = null, onNavigateToMemberProfile: ((Any?) -> Unit)? = null, onNavigateBack: () -> Unit = {}) {\n    Scaffold(topBar = { TopAppBar(title = { Text("Chat") }) }) {\n        Box(modifier = Modifier.fillMaxSize().padding(it), contentAlignment = Alignment.Center) {\n            Text("Chat Screen")\n        }\n    }\n}'
@@ -79,6 +205,6 @@ jobs:
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: Samiti-App-APK
+        name: All-Services-Group-APK
         path: "**/build/outputs/apk/**/*.apk"
         
