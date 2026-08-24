@@ -48,7 +48,6 @@ jobs:
 
     - name: Fix Keystore, Configs and Clean Kotlin Code
       run: |
-        # 1. Create debug.keystore
         mkdir -p ~/.android
         keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
         
@@ -57,7 +56,6 @@ jobs:
           cp ~/.android/debug.keystore "$app_dir/debug.keystore" || true
         done
 
-        # 2. Add Mock google-services.json
         MOCK_JSON='{
           "project_info": {
             "project_number": "123456789012",
@@ -91,22 +89,16 @@ jobs:
           echo "$MOCK_JSON" > "$app_dir/google-services.json"
         done
 
-        # 3. Clean up invalid signing configs
         find "$PROJECT_DIR" -name "build.gradle*" | while read -r gfile; do
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-        # 4. Patch Source Files via Python
         python3 - << 'EOF'
         import os, re
-
         project_dir = os.environ.get('PROJECT_DIR', '.')
-
         for root, dirs, files in os.walk(project_dir):
             for file in files:
                 fpath = os.path.join(root, file)
-
-                # Fix ReportsScreen imports
                 if file == 'ReportsScreen.kt':
                     with open(fpath, 'r', encoding='utf-8') as f:
                         content = f.read()
@@ -115,8 +107,6 @@ jobs:
                         content = re.sub(r'(package [^\n]+)', r'\1' + extra_imports, content, count=1)
                     with open(fpath, 'w', encoding='utf-8') as f:
                         f.write(content)
-
-                # Replace broken SocietyChatScreen with working Compose component
                 if file == 'SocietyChatScreen.kt':
                     valid_chat_screen = '''package com.example.ui.screens
 
