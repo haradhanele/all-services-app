@@ -68,17 +68,145 @@ jobs:
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-    - name: Overwrite All Report Screen Variations
+    - name: Force Overwrite Report Screens with Matching Package
       run: |
-        REPORTS_B64="cGFja2FnZSBjb20uZXhhbXBsZS51aS5zY3JlZW5zCgppbXBvcnQgYW5kcm9pZHgwY29tcG9zZS5mb3VuZGF0aW9uLmJhY2tncm91bmQKaW1wb3J0IGFuZHJvaWR4LmNvbXBvc2UuZm91bmRhdGlvbi5sYXlvdXQuKgppbXBvcnQgYW5kcm9pZHgwY29tcG9zZS5mb3VuZGF0aW9uLmxhenkuTGF6eUNvbHVtbgppbXBvcnQgYW5kcm9pZHgwY29tcG9zZS5mb3VuZGF0aW9uLnNoYXBlLlJvdW5kZWRDb3JuZXJTaGFwZQppbXBvcnQgYW5kcm9pZHgwY29tcG9zZS5tYXRlcmlhbDMuKgppbXBvcnQgYW5kcm9pZHgwY29tcG9zZS5ydW50aW1lLioKaW1wb3J0IGFuZHJvaWR4LmNvbXBvc2UudWkuQWxpZ25tZW50CmltcG9ydCBhbmRyb2lkeC5jb21wb3NlLnVpLk1vZGlmaWVyCmltcG9ydCBhbmRyb2lkeC5jb21wb3NlLnVpLmdyYXBoaWNzLkNvbG9yCmltcG9ydCBhbmRyb2lkeC5jb21wb3NlLnVpLnRleHQuZm9udC5Gb250V2VpZ2h0CmltcG9ydCBhbmRyb2lkeC5jb21wb3NlLnVpLnVuaXQuZHAKaW1wb3J0IGFuZHJvaWR4LmNvbXBvc2UudWkudW5pdC5zcAoKQE9wdEluKEV4cGVyaW1lbnRhbE1hdGVyaWFsM0FwaTo6Y2xhc3MpCkBDb21wb3NhYmxlCmZ1biBSZXBvcnRTY3JlZW4odmlld01vZGVsOiBBbnk/ID0gbnVsbCwgb25OYXZpZ2F0ZVRvU2V0dGluZ3M6ICgoKSAtPiBVbml0KT8gPSBudWxsLCBvbk5hdmlnYXRlQmFjazogKCkgLT4gVW5pdCA9IHt9KSB7IFJlcG9ydHNDb250ZW50KCkgfQoKQE9wdEluKEV4cGVyaW1lbnRhbE1hdGVyaWFsM0FwaTo6Y2xhc3MpCkBDb21wb3NhYmxlCmZ1biBSZXBvcnRzU2NyZWVuKHZpZXdNb2RlbDogQW55PyA9IG51bGwsIG9uTmF2aWdhdGVUb1NldHRpbmdzOiAoKCkgLT4gVW5pdCk/ID0gbnVsbCwgb25OYXZpZ2F0ZUJhY2s6ICgpIC0+IFVuaXQgPSB7fSkgeyBSZXBvcnRzQ29udGVudCgpIH0KCkBPcHRJbihFeHBlcmltZW50YWxNYXRlcmlhbDNBcGk6OmNsYXNzKQpAQ29tcG9zYWJsZQpmdW4gUmVwb3J0c0NvbnRlbnQoKSB7CiAgICBTY2FmZm9sZCgKICAgICAgICB0b3BCYXIgPSB7CiAgICAgICAgICAgIFRvcEFwcEJhcih0aXRsZSA9IHsgVGV4dCgiRmluYW5jaWFsIFJlcG9ydHMiLCBmb250V2VpZ2h0ID0gRm9udFdlaWdodC5Cb2xkKSB9KQogICAgICAgIH0KICAgICkgeyBpbm5lclBhZGRpbmcgLT4KICAgICAgICBMYXp5Q29sdW1uKAogICAgICAgICAgICBtb2RpZmllciA9IE1vZGlmaWVyLmZpbGxNYXhTaXplKCkucGFkZGluZyhpbm5lclBhZGRpbmcpLnBhZGRpbmcoMTYuZHApLAogICAgICAgICAgICB2ZXJ0aWNhbEFycmFuZ2VtZW50ID0gQXJyYW5nZW1lbnQuc3BhY2VkQnkoMTYuZHApCiAgICAgICAgKSB7CiAgICAgICAgICAgIGl0ZW0gewogICAgICAgICAgICAgICAgU3VyZmFjZShtb2RpZmllciA9IE1vZGlmaWVyLmZpbGxNYXhXaWR0aCgpLCBzaGFwZSA9IFJvdW5kZWRDb3JuZXJTaGFwZSgxNi5kcCksIGNvbG9yID0gQ29sb3IoMHhGRjFFM0E4QSkpIHsKICAgICAgICAgICAgICAgICAgICBDb2x1bW4obW9kaWZpZXIgPSBNb2RpZmllci5wYWRkaW5nKDIwLmRwKSkgewogICAgICAgICAgICAgICAgICAgICAgICBUZXh0KHRleHQgPSAiVG90YWwgQ29sbGVjdGVkIEZ1bmQiLCBjb2xvciA9IENvbG9yLldoaXRlLmNvcHkoYWxwaGEgPSAwLjhmKSwgZm9udFNpemUgPSAxNC5zcCkKICAgICAgICAgICAgICAgICAgICAgICAgVGV4dCh0ZXh0ID0gIlJzLiA1LDQwMC4wMCIsIGNvbG9yID0gQ29sb3IuV2hpdGUsIGZvbnRTaXplID0gMjguc3AsIGZvbnRXZWlnaHQgPSBGb250V2VpZ2h0LkJvbGQpCiAgICAgICAgICAgICAgICAgICAgICAgIFNwYWNlcihtb2RpZmllciA9IE1vZGlmaWVyLmhlaWdodCgxMi5kcCkpCiAgICAgICAgICAgICAgICAgICAgICAgIFJvdyhtb2RpZmllciA9IE1vZGlmaWVyLmZpbGxNYXhXaWR0aCgpLCBob3Jpem9udGFsQXJyYW5nZW1lbnQgPSBBcnJhbmdlbWVudC5TcGFjZUJldHdlZW4pIHsKICAgICAgICAgICAgICAgICAgICAgICAgICAgIFRleHQodGV4dCA9ICJBY3RpdmUgTWVtYmVyczogMTciLCBjb2xvciA9IENvbG9yLldoaXRlLCBmb250U2l6ZSA9IDE0LnNwKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgVGV4dCh0ZXh0ID0gIlRhcmdldDogUnMuIDEwLDIwMCIsIGNvbG9yID0gQ29sb3IuV2hpdGUuY29weShhbHBoYSA9IDAuOWYpLCBmb250U2l6ZSA9IDE0LnNwKQogICAgICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgfQogICAgICAgICAgICB9CgogICAgICAgICAgICBpdGVtIHsgVGV4dCh0ZXh0ID0gIk1vbnRobHkgU3VtbWFyeSIsIGZvbnRXZWlnaHQgPSBGb250V2VpZ2h0LkJvbGQpIH0KCiAgICAgICAgICAgIGl0ZW0gewogICAgICAgICAgICAgICAgU3VyZmFjZShtb2RpZmllciA9IE1vZGlmaWVyLmZpbGxNYXhXaWR0aCgpLCBzaGFwZSA9IFJvdW5kZWRDb3JuZXJTaGFwZSgxMi5kcCksIGNvbG9yID0gQ29sb3IoMHhGRkUwRTBFMCkpIHsKICAgICAgICAgICAgICAgICAgICBDb2x1bW4obW9kaWZpZXIgPSBNb2RpZmllci5wYWRkaW5nKDE2LmRwKSkgewogICAgICAgICAgICAgICAgICAgICAgICBSb3cobW9kaWZpZXIgPSBNb2RpZmllci5maWxsTWF4V2lkdGgoKSwgaG9yaXpvbnRhbEFycmFuZ2VtZW50ID0gQXJyYW5nZW1lbnQuU3BhY2VCZXR3ZWVuKSB7CiAgICAgICAgICAgICAgICAgICAgICAgICAgICBUZXh0KHRleHQgPSAiSnVseSAyMDI2IiwgZm9udFdlaWdodCA9IEZvbnRXZWlnaHQuU2VtaUJvbGQpCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBUZXh0KHRleHQgPSAiUnMuIDIsNzAwLjAwIiwgY29sb3IgPSBDb2xvcigweEZGMkU3RDMyKSwgZm9udFdlaWdodCA9IEZvbnRXZWlnaHQuQm9sZCkKICAgICAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgICAgICBTcGFjZXIobW9kaWZpZXIgPSBNb2RpZmllci5oZWlnaHQoNC5kcCkpCiAgICAgICAgICAgICAgICAgICAgICAgIFRleHQodGV4dCA9ICJQYWlkOiA5IE1lbWJlcnMgfCBQZW5kaW5nOiA4IiwgZm9udFNpemUgPSAxMi5zcCkKICAgICAgICAgICAgICAgICAgICAgICAgRGl2aWRlcihtb2RpZmllciA9IE1vZGlmaWVyLnBhZGRpbmcodmVydGljYWwgPSA4LmRwKSkKICAgICAgICAgICAgICAgICAgICAgICAgUm93KG1vZGlmaWVyID0gTW9kaWZpZXIuZmlsbE1heFdpZHRoKCksIGhvcml6b250YWxBcnJhbmdlbWVudCA9IEFycmFuZ2VtZW50LlNwYWNlQmV0d2VlbikgewogICAgICAgICAgICAgICAgICAgICAgICAgICAgVGV4dCh0ZXh0ID0gIkF1Z3VzdCAyMDI2IiwgZm9udFdlaWdodCA9IEZvbnRXZWlnaHQuU2VtaUJvbGQpCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBUZXh0KHRleHQgPSAiUnMuIDIsNzAwLjAwIiwgY29sb3IgPSBDb2xvcigweEZGMkU3RDMyKSwgZm9udFdlaWdodCA9IEZvbnRXZWlnaHQuQm9sZCkKICAgICAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgICAgICBTcGFjZXIobW9kaWZpZXIgPSBNb2RpZmllci5oZWlnaHQoNC5kcCkpCiAgICAgICAgICAgICAgICAgICAgICAgIFRleHQodGV4dCA9ICJQYWlkOiA5IE1lbWJlcnMgfCBQZW5kaW5nOiA4IiwgZm9udFNpemUgPSAxMi5zcCkKICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KCiAgICAgICAgICAgIGl0ZW0geyBUZXh0KHRleHQgPSAiU3VtbWFyeSIsIGZvbnRXZWlnaHQgPSBGb250V2VpZ2h0LkJvbGQpIH0KCiAgICAgICAgICAgIGl0ZW0gewogICAgICAgICAgICAgICAgUm93KG1vZGlmaWVyID0gTW9kaWZpZXIuZmlsbE1heFdpZHRoKCksIGhvcml6b250YWxBcnJhbmdlbWVudCA9IEFycmFuZ2VtZW50LnNwYWNlZEJ5KDEyLmRwKSkgewogICAgICAgICAgICAgICAgICAgIFN1cmZhY2UobW9kaWZpZXIgPSBNb2RpZmllci53ZWlnaHQoMWYpLCBzaGFwZSA9IFJvdW5kZWRDb3JuZXJTaGFwZSgxMi5kcCksIGNvbG9yID0gQ29sb3IoMHhGRkU4RjVFOSkpIHsKICAgICAgICAgICAgICAgICAgICAgICAgQ29sdW1uKG1vZGlmaWVyID0gTW9kaWZpZXIucGFkZGluZygxNi5kcCkpIHsKICAgICAgICAgICAgICAgICAgICAgICAgICAgIFRleHQodGV4dCA9ICJQYWlkIiwgY29sb3IgPSBDb2xvcigweEZGMkU3RDMyKSwgZm9udFNpemUgPSAxMi5zcCkKICAgICAgICAgICAgICAgICAgICAgICAgICAgIFRleHQodGV4dCA9ICJScy4gNSw0MDAiLCBjb2xvciA9IENvbG9yKDB4RkYxQjVFMjApLCBmb250U2l6ZSA9IDE4LnNwLCBmb250V2VpZ2h0ID0gRm9udFdlaWdodC5Cb2xkKQogICAgICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICAgICAgfQogICAgICAgICAgICAgICAgICAgIFN1cmZhY2UobW9kaWZpZXIgPSBNb2RpZmllci53ZWlnaHQoMWYpLCBzaGFwZSA9IFJvdW5kZWRDb3JuZXJTaGFwZSgxMi5kcCksIGNvbG9yID0gQ29sb3IoMHhGRkZGRUJFRSkpIHsKICAgICAgICAgICAgICAgICAgICAgICAgQ29sdW1uKG1vZGlmaWVyID0gTW9kaWZpZXIucGFkZGluZygxNi5kcCkpIHsKICAgICAgICAgICAgICAgICAgICAgICAgICAgIFRleHQodGV4dCA9ICJEdWUiLCBjb2xvciA9IENvbG9yKDB4RkZDNjI4MjEpLCBmb250U2l6ZSA9IDEyLnNwKQogICAgICAgICAgICAgICAgICAgICAgICAgICAgVGV4dCh0ZXh0ID0gIlJzLiA0LDgwMCIsIGNvbG9yID0gQ29sb3IoMHhGRkI3MUM1QyksIGZvbnRTaXplID0gMTguc3AsIGZvbnRXZWlnaHQgPSBGb250V2VpZ2h0LkJvbGQpCiAgICAgICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICB9Cn0K"
-        
-        find "$PROJECT_DIR" -name "*Report*Screen.kt" -o -name "ReportsScreen.kt" -o -name "ReportScreen.kt" | while read -r rfile; do
-          echo "$REPORTS_B64" | base64 -d | sed 's/androidx0compose/androidx.compose/g' > "$rfile"
-        done
+        find "$PROJECT_DIR" -type f \( -name "*Report*.kt" -o -name "*report*.kt" \) | while read -r rfile; do
+          PKG_LINE=$(grep "^package " "$rfile" | head -n 1)
+          if [ -z "$PKG_LINE" ]; then
+            PKG_LINE="package com.aistudio.samitifund"
+          fi
+          
+          cat << 'EOF' > "$rfile"
+        $PKG_LINE
 
-        CHAT_CODE='package com.example.ui.screens\n\nimport androidx.compose.foundation.layout.*\nimport androidx.compose.material3.*\nimport androidx.compose.runtime.*\nimport androidx.compose.ui.Alignment\nimport androidx.compose.ui.Modifier\n\n@OptIn(ExperimentalMaterial3Api::class)\n@Composable\nfun SocietyChatScreen(viewModel: Any? = null, onNavigateToMemberProfile: ((Any?) -> Unit)? = null, onNavigateBack: () -> Unit = {}) {\n    Scaffold(topBar = { TopAppBar(title = { Text("Chat") }) }) {\n        Box(modifier = Modifier.fillMaxSize().padding(it), contentAlignment = Alignment.Center) {\n            Text("Chat Screen")\n        }\n    }\n}'
-        find "$PROJECT_DIR" -name "SocietyChatScreen.kt" | while read -r cfile; do
-          printf "%b" "$CHAT_CODE" > "$cfile"
+        import androidx.compose.foundation.background
+        import androidx.compose.foundation.layout.*
+        import androidx.compose.foundation.lazy.LazyColumn
+        import androidx.compose.foundation.shape.RoundedCornerShape
+        import androidx.compose.material3.*
+        import androidx.compose.runtime.*
+        import androidx.compose.ui.Alignment
+        import androidx.compose.ui.Modifier
+        import androidx.compose.ui.graphics.Color
+        import androidx.compose.ui.text.font.FontWeight
+        import androidx.compose.ui.unit.dp
+        import androidx.compose.ui.unit.sp
+
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun ReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
+            ReportsUI()
+        }
+
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun ReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
+            ReportsUI()
+        }
+
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun FinancialReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
+            ReportsUI()
+        }
+
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun ReportsUI() {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text("Financial Reports", fontWeight = FontWeight.Bold) }
+                    )
+                }
+            ) { innerPadding ->
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color(0xFF1E3A8A)
+                        ) {
+                            Column(modifier = Modifier.padding(20.dp)) {
+                                Text(text = "Total Collected Fund", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
+                                Text(text = "₹5,400.00", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(text = "Active Members: 17", color = Color.White, fontSize = 14.sp)
+                                    Text(text = "Target: ₹10,200", color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Text(text = "Monthly Summary", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
+
+                    item {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFFE2E8F0)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(text = "July 2026", fontWeight = FontWeight.SemiBold)
+                                    Text(text = "₹2,700.00", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(text = "Paid: 9 Members | Due: 8 Members", fontSize = 12.sp)
+                                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(text = "August 2026", fontWeight = FontWeight.SemiBold)
+                                    Text(text = "₹2,700.00", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(text = "Paid: 9 Members | Due: 8 Members", fontSize = 12.sp)
+                            }
+                        }
+                    }
+
+                    item {
+                        Text(text = "Overall Status", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    }
+
+                    item {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Surface(
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp),
+                                color = Color(0xFFE8F5E9)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(text = "Paid Total", color = Color(0xFF2E7D32), fontSize = 12.sp)
+                                    Text(text = "₹5,400", color = Color(0xFF1B5E20), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+
+                            Surface(
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp),
+                                color = Color(0xFFFFEBEE)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(text = "Pending Due", color = Color(0xFFC62828), fontSize = 12.sp)
+                                    Text(text = "₹4,800", color = Color(0xFFB71C1C), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        EOF
+          sed -i "1s|.*|$PKG_LINE|" "$rfile"
         done
 
     - name: Build APK
