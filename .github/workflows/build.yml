@@ -68,12 +68,13 @@ jobs:
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-    - name: Force Overwrite Report Screens with Matching Package
+    - name: Safely Overwrite Only Report Screen UI
       run: |
-        find "$PROJECT_DIR" -type f \( -name "*Report*.kt" -o -name "*report*.kt" \) | while read -r rfile; do
+        # Only overwrite UI screens, strictly skipping Exporters and ViewModels
+        find "$PROJECT_DIR" -type f \( -name "*Report*Screen.kt" -o -name "*Reports*Screen.kt" \) | while read -r rfile; do
           PKG_LINE=$(grep "^package " "$rfile" | head -n 1)
           if [ -z "$PKG_LINE" ]; then
-            PKG_LINE="package com.aistudio.samitifund"
+            PKG_LINE="package com.example.ui.screens"
           fi
           
           cat << 'EOF' > "$rfile"
@@ -135,11 +136,11 @@ jobs:
                         ) {
                             Column(modifier = Modifier.padding(20.dp)) {
                                 Text(text = "Total Collected Fund", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
-                                Text(text = "₹5,400.00", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                                Text(text = "Rs. 5,400.00", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(text = "Active Members: 17", color = Color.White, fontSize = 14.sp)
-                                    Text(text = "Target: ₹10,200", color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
+                                    Text(text = "Target: Rs. 10,200", color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
                                 }
                             }
                         }
@@ -158,14 +159,14 @@ jobs:
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(text = "July 2026", fontWeight = FontWeight.SemiBold)
-                                    Text(text = "₹2,700.00", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                                    Text(text = "Rs. 2,700.00", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(text = "Paid: 9 Members | Due: 8 Members", fontSize = 12.sp)
                                 Divider(modifier = Modifier.padding(vertical = 8.dp))
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(text = "August 2026", fontWeight = FontWeight.SemiBold)
-                                    Text(text = "₹2,700.00", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                                    Text(text = "Rs. 2,700.00", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(text = "Paid: 9 Members | Due: 8 Members", fontSize = 12.sp)
@@ -186,7 +187,7 @@ jobs:
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Text(text = "Paid Total", color = Color(0xFF2E7D32), fontSize = 12.sp)
-                                    Text(text = "₹5,400", color = Color(0xFF1B5E20), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                    Text(text = "Rs. 5,400", color = Color(0xFF1B5E20), fontSize = 20.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
 
@@ -197,7 +198,7 @@ jobs:
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Text(text = "Pending Due", color = Color(0xFFC62828), fontSize = 12.sp)
-                                    Text(text = "₹4,800", color = Color(0xFFB71C1C), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                    Text(text = "Rs. 4,800", color = Color(0xFFB71C1C), fontSize = 20.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
