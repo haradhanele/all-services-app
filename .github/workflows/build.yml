@@ -19,17 +19,16 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Setup Gradle without Cache
+    - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: '9.3.1'
-        cache-disabled: true
 
     - name: Find and Extract ZIP
       run: |
         ZIP_FILE=$(find . -maxdepth 2 -name "*.zip" | head -n 1)
         if [ -n "$ZIP_FILE" ]; then
-          echo "Extracting $ZIP_FILE..."
+          echo "Extracting $ZIP_FILE"
           unzip -o "$ZIP_FILE" -d extracted_app
           SETTINGS_FILE=$(find extracted_app -name "settings.gradle*" | head -n 1)
           if [ -n "$SETTINGS_FILE" ]; then
@@ -39,13 +38,7 @@ jobs:
           fi
           echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
         else
-          SETTINGS_FILE=$(find . -name "settings.gradle*" | head -n 1)
-          if [ -n "$SETTINGS_FILE" ]; then
-            PROJECT_DIR=$(dirname "$SETTINGS_FILE")
-          else
-            PROJECT_DIR=$(find . -name "build.gradle*" | head -n 1 | xargs dirname)
-          fi
-          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
     - name: Replace App Name with All Services Group
@@ -75,14 +68,20 @@ jobs:
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-    - name: Clean Duplicates and Patch Dark Reports UI
+    - name: Clean Conflicting Overloads
       run: |
         find "$PROJECT_DIR" -name "*CustomView*.kt" -delete || true
 
-        cat << 'ENDFILE' > patch_reports.py
-        import os
-
-        template = """PACKAGE_DECLARATION
+    - name: Update Reports UI Screen
+      run: |
+        find "$PROJECT_DIR" -type f \( -name "*Report*Screen*.kt" -o -name "*Reports*Screen*.kt" \) ! -name "*Exporter*" ! -name "*ViewModel*" | while read -r rfile; do
+          PKG_LINE=$(grep "^package " "$rfile" | head -n 1)
+          if [ -z "$PKG_LINE" ]; then
+            PKG_LINE="package com.example.ui.screens"
+          fi
+          
+          cat << 'EOF' > "$rfile"
+        $PKG_LINE
 
         import androidx.compose.foundation.background
         import androidx.compose.foundation.layout.*
@@ -117,36 +116,30 @@ jobs:
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun ReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            PixelPerfectReportsUI(onNavigateToSettings)
+            DarkReportsContent(onNavigateToSettings)
         }
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun ReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            PixelPerfectReportsUI(onNavigateToSettings)
+            DarkReportsContent(onNavigateToSettings)
         }
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun FinancialReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            PixelPerfectReportsUI(onNavigateToSettings)
+            DarkReportsContent(onNavigateToSettings)
         }
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
-        fun FinancialReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            PixelPerfectReportsUI(onNavigateToSettings)
-        }
-
-        @OptIn(ExperimentalMaterial3Api::class)
-        @Composable
-        fun PixelPerfectReportsUI(onNavigateToSettings: (() -> Unit)? = null) {
-            val darkBackground = Color(0xFF0F172A)
-            val cardBackground = Color(0xFF1E293B)
+        fun DarkReportsContent(onNavigateToSettings: (() -> Unit)? = null) {
+            val darkBg = Color(0xFF0F172A)
+            val cardBg = Color(0xFF1E293B)
             val whiteCard = Color(0xFFFFFFFF)
-            val purplePrimary = Color(0xFF6366F1)
-            val greenSuccess = Color(0xFF10B981)
-            val redDanger = Color(0xFFEF4444)
+            val purpleColor = Color(0xFF6366F1)
+            val greenColor = Color(0xFF10B981)
+            val redColor = Color(0xFFEF4444)
             val textLight = Color(0xFFF8FAFC)
             val textMuted = Color(0xFF94A3B8)
 
@@ -173,10 +166,10 @@ jobs:
             }
 
             Scaffold(
-                containerColor = darkBackground,
+                containerColor = darkBg,
                 topBar = {
                     TopAppBar(
-                        colors = TopAppBarDefaults.topAppBarColors(containerColor = darkBackground),
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = darkBg),
                         title = {
                             Text(
                                 text = "Reports & Analytics",
@@ -190,7 +183,7 @@ jobs:
                                 Icon(
                                     imageVector = Icons.Default.Settings,
                                     contentDescription = "Settings",
-                                    tint = purplePrimary
+                                    tint = purpleColor
                                 )
                             }
                         }
@@ -232,7 +225,7 @@ jobs:
                                     Button(
                                         onClick = {},
                                         modifier = Modifier.weight(1f).height(44.dp),
-                                        colors = ButtonDefaults.buttonColors(containerColor = purplePrimary),
+                                        colors = ButtonDefaults.buttonColors(containerColor = purpleColor),
                                         shape = RoundedCornerShape(12.dp)
                                     ) {
                                         Icon(
@@ -255,7 +248,7 @@ jobs:
                                             imageVector = Icons.Default.TableChart,
                                             contentDescription = null,
                                             modifier = Modifier.size(16.dp),
-                                            tint = purplePrimary
+                                            tint = purpleColor
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text("Export CSV", color = Color(0xFF1E293B), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
@@ -273,7 +266,7 @@ jobs:
                             Surface(
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(16.dp),
-                                color = cardBackground
+                                color = cardBg
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Row(
@@ -282,7 +275,7 @@ jobs:
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text("TOTAL EXPECTED", color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                        Icon(Icons.Default.Description, contentDescription = null, tint = purplePrimary, modifier = Modifier.size(16.dp))
+                                        Icon(Icons.Default.Description, contentDescription = null, tint = purpleColor, modifier = Modifier.size(16.dp))
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text("Rs. 5,100", color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -292,7 +285,7 @@ jobs:
                             Surface(
                                 modifier = Modifier.weight(1f),
                                 shape = RoundedCornerShape(16.dp),
-                                color = cardBackground
+                                color = cardBg
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Row(
@@ -301,7 +294,7 @@ jobs:
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text("COLLECTED", color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = greenSuccess, modifier = Modifier.size(16.dp))
+                                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = greenColor, modifier = Modifier.size(16.dp))
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text("Rs. 2,700", color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -343,7 +336,7 @@ jobs:
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = member.code + " • Exp: " + member.exp,
+                                        text = "${member.code} • Exp: ${member.exp}",
                                         color = Color(0xFF64748B),
                                         fontSize = 12.sp
                                     )
@@ -355,18 +348,19 @@ jobs:
                                 ) {
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text(
-                                            text = "Paid: " + member.paid,
-                                            color = if (member.paid != "Rs.0") greenSuccess else Color(0xFF0F172A),
+                                            text = "Paid: ${member.paid}",
+                                            color = if (member.paid != "Rs.0") greenColor else Color(0xFF0F172A),
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.Bold
                                         )
-                                        if member.due != "":
+                                        if (member.due.isNotEmpty()) {
                                             Text(
-                                                text = "Due: " + member.due,
-                                                color = redDanger,
+                                                text = "Due: ${member.due}",
+                                                color = redColor,
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.SemiBold
                                             )
+                                        }
                                     }
 
                                     Surface(
@@ -381,4 +375,9 @@ jobs:
                                                 modifier = Modifier
                                                     .size(6.dp)
                                                     .background(
-                                                        if (member.status == "PAID") greenSuccess else re
+                                                        if (member.status == "PAID") greenColor else redColor,
+                                                        shape = CircleShape
+                                                    )
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                         
