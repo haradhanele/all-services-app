@@ -68,24 +68,18 @@ jobs:
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-    - name: Inject New Reports Screen Everywhere
+    - name: Directly Inject New Reports UI Inside Main Application Files
       run: |
-        find "$PROJECT_DIR" -type f \( -name "*Report*Screen.kt" -o -name "*Reports*Screen.kt" \) ! -name "*Exporter*" ! -name "*ViewModel*" | while read -r rfile; do
-          PKG_LINE=$(grep "^package " "$rfile" | head -n 1)
-          if [ -z "$PKG_LINE" ]; then
-            PKG_LINE="package com.aistudio.samitifund"
-          fi
-          
-          cat << 'EOF' > "$rfile"
-        PACKAGE_PLACEHOLDER
+        # Inject the custom UI function into all UI root directories
+        find "$PROJECT_DIR" -type d -name "ui" -o -name "screens" | while read -r dir; do
+          cat << 'EOF' > "$dir/FinancialReportsCustomView.kt"
+        package com.aistudio.samitifund.ui
 
-        import androidx.compose.foundation.background
         import androidx.compose.foundation.layout.*
         import androidx.compose.foundation.lazy.LazyColumn
         import androidx.compose.foundation.shape.RoundedCornerShape
         import androidx.compose.material3.*
         import androidx.compose.runtime.*
-        import androidx.compose.ui.Alignment
         import androidx.compose.ui.Modifier
         import androidx.compose.ui.graphics.Color
         import androidx.compose.ui.text.font.FontWeight
@@ -94,25 +88,7 @@ jobs:
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
-        fun ReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            FinancialReportCustomUI()
-        }
-
-        @OptIn(ExperimentalMaterial3Api::class)
-        @Composable
-        fun ReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            FinancialReportCustomUI()
-        }
-
-        @OptIn(ExperimentalMaterial3Api::class)
-        @Composable
-        fun FinancialReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            FinancialReportCustomUI()
-        }
-
-        @OptIn(ExperimentalMaterial3Api::class)
-        @Composable
-        fun FinancialReportCustomUI() {
+        fun FinancialReportsCustomView() {
             Scaffold(
                 topBar = {
                     TopAppBar(
@@ -206,7 +182,13 @@ jobs:
             }
         }
         EOF
-          sed -i "s|PACKAGE_PLACEHOLDER|$PKG_LINE|g" "$rfile"
+        done
+
+        # Replace any screen calls in NavHost / MainActivity with FinancialReportsCustomView
+        find "$PROJECT_DIR" -type f -name "*.kt" | while read -r kfile; do
+          sed -i 's/ReportsScreen(.*)/com.aistudio.samitifund.ui.FinancialReportsCustomView()/g' "$kfile" || true
+          sed -i 's/ReportScreen(.*)/com.aistudio.samitifund.ui.FinancialReportsCustomView()/g' "$kfile" || true
+          sed -i 's/FinancialReportScreen(.*)/com.aistudio.samitifund.ui.FinancialReportsCustomView()/g' "$kfile" || true
         done
 
     - name: Build APK
