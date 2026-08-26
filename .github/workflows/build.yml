@@ -19,28 +19,23 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
-      with:
-        gradle-version: '9.3.1'
-
     - name: Find and Extract ZIP
       run: |
         ZIP_FILE=$(find . -maxdepth 2 -name "*.zip" | head -n 1)
         if [ -n "$ZIP_FILE" ]; then
           echo "Extracting $ZIP_FILE..."
           unzip -o "$ZIP_FILE" -d extracted_app
-          SETTINGS_FILE=$(find extracted_app -name "settings.gradle*" | head -n 1)
-          if [ -n "$SETTINGS_FILE" ]; then
-            PROJECT_DIR=$(dirname "$SETTINGS_FILE")
+          GRADLEW_FILE=$(find extracted_app -name "gradlew" | head -n 1)
+          if [ -n "$GRADLEW_FILE" ]; then
+            PROJECT_DIR=$(dirname "$GRADLEW_FILE")
           else
             PROJECT_DIR=$(find extracted_app -name "build.gradle*" | head -n 1 | xargs dirname)
           fi
           echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
         else
-          SETTINGS_FILE=$(find . -name "settings.gradle*" | head -n 1)
-          if [ -n "$SETTINGS_FILE" ]; then
-            PROJECT_DIR=$(dirname "$SETTINGS_FILE")
+          GRADLEW_FILE=$(find . -name "gradlew" | head -n 1)
+          if [ -n "$GRADLEW_FILE" ]; then
+            PROJECT_DIR=$(dirname "$GRADLEW_FILE")
           else
             PROJECT_DIR=$(find . -name "build.gradle*" | head -n 1 | xargs dirname)
           fi
@@ -380,4 +375,7 @@ jobs:
                                                     .background(
                                                         if (member.status == "PAID") greenSuccess else redDanger,
                                                         shape = CircleShape
-                                                
+                                                    )
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+ 
