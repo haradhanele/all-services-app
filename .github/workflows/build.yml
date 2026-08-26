@@ -1,4 +1,4 @@
-                           name: Build Android APK from Zip
+name: Build Android APK from Zip
 
 on:
   push:
@@ -68,7 +68,7 @@ jobs:
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-    - name: Inject Pixel-Perfect Dark Reports Screen
+    - name: Inject Pixel Perfect Dark Reports Screen
       run: |
         find "$PROJECT_DIR" -type f \( -name "*Report*Screen*.kt" -o -name "*Reports*Screen*.kt" -o -name "*Financial*Screen*.kt" \) ! -name "*Exporter*" ! -name "*ViewModel*" | while read -r target; do
           PKG_LINE=$(grep "^package " "$target" | head -n 1)
@@ -80,7 +80,6 @@ jobs:
         PACKAGE_LINE_REPLACE
 
         import androidx.compose.foundation.background
-        import androidx.compose.foundation.border
         import androidx.compose.foundation.layout.*
         import androidx.compose.foundation.lazy.LazyColumn
         import androidx.compose.foundation.lazy.items
@@ -379,4 +378,5 @@ jobs:
                                                     .size(6.dp)
                                                     .background(
                                                         if (member.status == "PAID") greenSuccess else redDanger,
-                                                    
+                                                        shape = CircleShape
+                    
