@@ -74,278 +74,310 @@ jobs:
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-    - name: Inject Pixel Perfect Dark Reports Screen
+    - name: Create and Run Report Script
       run: |
-        python3 -c '
+        cat << 'ENDFILE' > patch_reports.py
         import os
 
-        code_lines = [
-            "PACKAGE_DECLARATION",
-            "",
-            "import androidx.compose.foundation.background",
-            "import androidx.compose.foundation.layout.*",
-            "import androidx.compose.foundation.lazy.LazyColumn",
-            "import androidx.compose.foundation.lazy.items",
-            "import androidx.compose.foundation.shape.CircleShape",
-            "import androidx.compose.foundation.shape.RoundedCornerShape",
-            "import androidx.compose.material.icons.Icons",
-            "import androidx.compose.material.icons.filled.CheckCircle",
-            "import androidx.compose.material.icons.filled.Description",
-            "import androidx.compose.material.icons.filled.PictureAsPdf",
-            "import androidx.compose.material.icons.filled.Settings",
-            "import androidx.compose.material.icons.filled.TableChart",
-            "import androidx.compose.material3.*",
-            "import androidx.compose.runtime.*",
-            "import androidx.compose.ui.Alignment",
-            "import androidx.compose.ui.Modifier",
-            "import androidx.compose.ui.graphics.Color",
-            "import androidx.compose.ui.text.font.FontWeight",
-            "import androidx.compose.ui.unit.dp",
-            "import androidx.compose.ui.unit.sp",
-            "",
-            "data class MemberReportItem(",
-            "    val name: String,",
-            "    val code: String,",
-            "    val exp: String,",
-            "    val paid: String,",
-            "    val due: String,",
-            "    val status: String",
-            ")",
-            "",
-            "@OptIn(ExperimentalMaterial3Api::class)",
-            "@Composable",
-            "fun ReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {",
-            "    PixelPerfectReportsUI(onNavigateToSettings)",
-            "}",
-            "",
-            "@OptIn(ExperimentalMaterial3Api::class)",
-            "@Composable",
-            "fun ReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {",
-            "    PixelPerfectReportsUI(onNavigateToSettings)",
-            "}",
-            "",
-            "@OptIn(ExperimentalMaterial3Api::class)",
-            "@Composable",
-            "fun FinancialReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {",
-            "    PixelPerfectReportsUI(onNavigateToSettings)",
-            "}",
-            "",
-            "@OptIn(ExperimentalMaterial3Api::class)",
-            "@Composable",
-            "fun FinancialReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {",
-            "    PixelPerfectReportsUI(onNavigateToSettings)",
-            "}",
-            "",
-            "@OptIn(ExperimentalMaterial3Api::class)",
-            "@Composable",
-            "fun PixelPerfectReportsUI(onNavigateToSettings: (() -> Unit)? = null) {",
-            "    val darkBackground = Color(0xFF0F172A)",
-            "    val cardBackground = Color(0xFF1E293B)",
-            "    val whiteCard = Color(0xFFFFFFFF)",
-            "    val purplePrimary = Color(0xFF6366F1)",
-            "    val greenSuccess = Color(0xFF10B981)",
-            "    val redDanger = Color(0xFFEF4444)",
-            "    val textLight = Color(0xFFF8FAFC)",
-            "    val textMuted = Color(0xFF94A3B8)",
-            "",
-            "    val membersList = remember {",
-            "        listOf(",
-            "            MemberReportItem(\"Anup kumar Roy\", \"SAM-101\", \"₹300\", \"₹300\", \"\", \"PAID\"),",
-            "            MemberReportItem(\"Ajoy kumar Roy\", \"SAM-102\", \"₹300\", \"₹300\", \"\", \"PAID\"),",
-            "            MemberReportItem(\"Bharat chandra Roy\", \"SAM-103\", \"₹300\", \"₹0\", \"₹300\", \"UNPAID\"),",
-            "            MemberReportItem(\"Dinabandhu Ghorai\", \"SAM-104\", \"₹300\", \"₹0\", \"₹300\", \"UNPAID\"),",
-            "            MemberReportItem(\"Gopal chandra Ghorai\", \"SAM-105\", \"₹300\", \"₹300\", \"\", \"PAID\"),",
-            "            MemberReportItem(\"Goutam Ghorai (B)\", \"SAM-106\", \"₹300\", \"₹300\", \"\", \"PAID\"),",
-            "            MemberReportItem(\"Goutam Ghorai\", \"SAM-107\", \"₹300\", \"₹0\", \"₹300\", \"UNPAID\"),",
-            "            MemberReportItem(\"Haradhan Ghorai\", \"SAM-108\", \"₹300\", \"₹300\", \"\", \"PAID\"),",
-            "            MemberReportItem(\"Hemanta Ghorai\", \"SAM-109\", \"₹300\", \"₹300\", \"\", \"PAID\"),",
-            "            MemberReportItem(\"Joykrishna Ghorai\", \"SAM-110\", \"₹300\", \"₹0\", \"₹300\", \"UNPAID\"),",
-            "            MemberReportItem(\"Kamal Ghorai\", \"SAM-111\", \"₹300\", \"₹0\", \"₹300\", \"UNPAID\"),",
-            "            MemberReportItem(\"Naba kumar Ghorai\", \"SAM-112\", \"₹300\", \"₹300\", \"\", \"PAID\"),",
-            "            MemberReportItem(\"Rabindranath Ghorai\", \"SAM-113\", \"₹300\", \"₹0\", \"₹300\", \"UNPAID\"),",
-            "            MemberReportItem(\"Rahul Ghorai\", \"SAM-114\", \"₹300\", \"₹0\", \"₹300\", \"UNPAID\"),",
-            "            MemberReportItem(\"Shyamal Ghorai\", \"SAM-115\", \"₹300\", \"₹300\", \"\", \"PAID\"),",
-            "            MemberReportItem(\"Tarun kumar Roy\", \"SAM-116\", \"₹300\", \"₹0\", \"₹300\", \"UNPAID\"),",
-            "            MemberReportItem(\"Uttam Ghorai\", \"SAM-117\", \"₹300\", \"₹300\", \"\", \"PAID\")",
-            "        )",
-            "    }",
-            "",
-            "    Scaffold(",
-            "        containerColor = darkBackground,",
-            "        topBar = {",
-            "            TopAppBar(",
-            "                colors = TopAppBarDefaults.topAppBarColors(containerColor = darkBackground),",
-            "                title = {",
-            "                    Text(",
-            "                        text = \"Reports & Analytics\",",
-            "                        color = textLight,",
-            "                        fontSize = 20.sp,",
-            "                        fontWeight = FontWeight.Bold",
-            "                    )",
-            "                },",
-            "                actions = {",
-            "                    IconButton(onClick = { onNavigateToSettings?.invoke() }) {",
-            "                        Icon(",
-            "                            imageVector = Icons.Default.Settings,",
-            "                            contentDescription = \"Settings\",",
-            "                            tint = purplePrimary",
-            "                        )",
-            "                    }",
-            "                }",
-            "            )",
-            "        }",
-            "    ) { paddingValues ->",
-            "        LazyColumn(",
-            "            modifier = Modifier",
-            "                .fillMaxSize()",
-            "                .padding(paddingValues)",
-            "                .padding(horizontal = 16.dp),",
-            "            verticalArrangement = Arrangement.spacedBy(16.dp)",
-            "        ) {",
-            "            item {",
-            "                Surface(",
-            "                    modifier = Modifier.fillMaxWidth(),",
-            "                    shape = RoundedCornerShape(20.dp),",
-            "                    color = whiteCard",
-            "                ) {",
-            "                    Column(modifier = Modifier.padding(16.dp)) {",
-            "                        Text(",
-            "                            text = \"Monthly Report (August 2026)\",",
-            "                            color = Color(0xFF0F172A),",
-            "                            fontSize = 16.sp,",
-            "                            fontWeight = FontWeight.Bold",
-            "                        )",
-            "                        Text(",
-            "                            text = \"All services group • Generated Live\",",
-            "                            color = Color(0xFF64748B),",
-            "                            fontSize = 12.sp",
-            "                        )",
-            "",
-            "                        Spacer(modifier = Modifier.height(16.dp))",
-            "",
-            "                        Row(",
-            "                            modifier = Modifier.fillMaxWidth(),",
-            "                            horizontalArrangement = Arrangement.spacedBy(12.dp)",
-            "                        ) {",
-            "                            Button(",
-            "                                onClick = {},",
-            "                                modifier = Modifier.weight(1f).height(44.dp),",
-            "                                colors = ButtonDefaults.buttonColors(containerColor = purplePrimary),",
-            "                                shape = RoundedCornerShape(12.dp)",
-            "                            ) {",
-            "                                Icon(",
-            "                                    imageVector = Icons.Default.PictureAsPdf,",
-            "                                    contentDescription = null,",
-            "                                    modifier = Modifier.size(16.dp),",
-            "                                    tint = Color.White",
-            "                                )",
-            "                                Spacer(modifier = Modifier.width(6.dp))",
-            "                                Text(\"Export PDF\", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)",
-            "                            }",
-            "",
-            "                            OutlinedButton(",
-            "                                onClick = {},",
-            "                                modifier = Modifier.weight(1f).height(44.dp),",
-            "                                shape = RoundedCornerShape(12.dp),",
-            "                                border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.5.dp)",
-            "                            ) {",
-            "                                Icon(",
-            "                                    imageVector = Icons.Default.TableChart,",
-            "                                    contentDescription = null,",
-            "                                    modifier = Modifier.size(16.dp),",
-            "                                    tint = purplePrimary",
-            "                                )",
-            "                                Spacer(modifier = Modifier.width(6.dp))",
-            "                                Text(\"Export CSV\", color = Color(0xFF1E293B), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)",
-            "                            }",
-            "                        }",
-            "                    }",
-            "                }",
-            "            }",
-            "",
-            "            item {",
-            "                Row(",
-            "                    modifier = Modifier.fillMaxWidth(),",
-            "                    horizontalArrangement = Arrangement.spacedBy(12.dp)",
-            "                ) {",
-            "                    Surface(",
-            "                        modifier = Modifier.weight(1f),",
-            "                        shape = RoundedCornerShape(16.dp),",
-            "                        color = cardBackground",
-            "                    ) {",
-            "                        Column(modifier = Modifier.padding(16.dp)) {",
-            "                            Row(",
-            "                                modifier = Modifier.fillMaxWidth(),",
-            "                                horizontalArrangement = Arrangement.SpaceBetween,",
-            "                                verticalAlignment = Alignment.CenterVertically",
-            "                            ) {",
-            "                                Text(\"TOTAL EXPECTED\", color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)",
-            "                                Icon(Icons.Default.Description, contentDescription = null, tint = purplePrimary, modifier = Modifier.size(16.dp))",
-            "                            }",
-            "                            Spacer(modifier = Modifier.height(8.dp))",
-            "                            Text(\"₹5,100\", color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)",
-            "                        }",
-            "                    }",
-            "",
-            "                    Surface(",
-            "                        modifier = Modifier.weight(1f),",
-            "                        shape = RoundedCornerShape(16.dp),",
-            "                        color = cardBackground",
-            "                    ) {",
-            "                        Column(modifier = Modifier.padding(16.dp)) {",
-            "                            Row(",
-            "                                modifier = Modifier.fillMaxWidth(),",
-            "                                horizontalArrangement = Arrangement.SpaceBetween,",
-            "                                verticalAlignment = Alignment.CenterVertically",
-            "                            ) {",
-            "                                Text(\"COLLECTED\", color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)",
-            "                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = greenSuccess, modifier = Modifier.size(16.dp))",
-            "                            }",
-            "                            Spacer(modifier = Modifier.height(8.dp))",
-            "                            Text(\"₹2,700\", color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)",
-            "                            Text(\"53% collected\", color = textMuted, fontSize = 10.sp)",
-            "                        }",
-            "                    }",
-            "                }",
-            "            }",
-            "",
-            "            item {",
-            "                Text(",
-            "                    text = \"Report Records Preview\",",
-            "                    color = textMuted,",
-            "                    fontSize = 14.sp,",
-            "                    fontWeight = FontWeight.SemiBold,",
-            "                    modifier = Modifier.padding(top = 4.dp)",
-            "                )",
-            "            }",
-            "",
-            "            items(membersList) { member ->",
-            "                Surface(",
-            "                    modifier = Modifier.fillMaxWidth(),",
-            "                    shape = RoundedCornerShape(14.dp),",
-            "                    color = whiteCard",
-            "                ) {",
-            "                    Row(",
-            "                        modifier = Modifier",
-            "                            .fillMaxWidth()",
-            "                            .padding(14.dp),",
-            "                        horizontalArrangement = Arrangement.SpaceBetween,",
-            "                        verticalAlignment = Alignment.CenterVertically",
-            "                    ) {",
-            "                        Column(modifier = Modifier.weight(1f)) {",
-            "                            Text(",
-            "                                text = member.name,",
-            "                                color = Color(0xFF0F172A),",
-            "                                fontSize = 15.sp,",
-            "                                fontWeight = FontWeight.Bold",
-            "                            )",
-            "                            Spacer(modifier = Modifier.height(2.dp))",
-            "                            Text(",
-            "                                text = \"${member.code} • Exp: ${member.exp}\",",
-            "                                color = Color(0xFF64748B),",
-            "                                fontSize = 12.sp",
-            "                            )",
-            "                        }",
-            "",
-            "                        Row(",
-            "                            verticalAlignment = Alignment.CenterVertical
+        template = """PACKAGE_DECLARATION
+
+        import androidx.compose.foundation.background
+        import androidx.compose.foundation.layout.*
+        import androidx.compose.foundation.lazy.LazyColumn
+        import androidx.compose.foundation.lazy.items
+        import androidx.compose.foundation.shape.CircleShape
+        import androidx.compose.foundation.shape.RoundedCornerShape
+        import androidx.compose.material.icons.Icons
+        import androidx.compose.material.icons.filled.CheckCircle
+        import androidx.compose.material.icons.filled.Description
+        import androidx.compose.material.icons.filled.PictureAsPdf
+        import androidx.compose.material.icons.filled.Settings
+        import androidx.compose.material.icons.filled.TableChart
+        import androidx.compose.material3.*
+        import androidx.compose.runtime.*
+        import androidx.compose.ui.Alignment
+        import androidx.compose.ui.Modifier
+        import androidx.compose.ui.graphics.Color
+        import androidx.compose.ui.text.font.FontWeight
+        import androidx.compose.ui.unit.dp
+        import androidx.compose.ui.unit.sp
+
+        data class MemberReportItem(
+            val name: String,
+            val code: String,
+            val exp: String,
+            val paid: String,
+            val due: String,
+            val status: String
+        )
+
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun ReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
+            PixelPerfectReportsUI(onNavigateToSettings)
+        }
+
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun ReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
+            PixelPerfectReportsUI(onNavigateToSettings)
+        }
+
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun FinancialReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
+            PixelPerfectReportsUI(onNavigateToSettings)
+        }
+
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun FinancialReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
+            PixelPerfectReportsUI(onNavigateToSettings)
+        }
+
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun PixelPerfectReportsUI(onNavigateToSettings: (() -> Unit)? = null) {
+            val darkBackground = Color(0xFF0F172A)
+            val cardBackground = Color(0xFF1E293B)
+            val whiteCard = Color(0xFFFFFFFF)
+            val purplePrimary = Color(0xFF6366F1)
+            val greenSuccess = Color(0xFF10B981)
+            val redDanger = Color(0xFFEF4444)
+            val textLight = Color(0xFFF8FAFC)
+            val textMuted = Color(0xFF94A3B8)
+
+            val membersList = remember {
+                listOf(
+                    MemberReportItem("Anup kumar Roy", "SAM-101", "Rs.300", "Rs.300", "", "PAID"),
+                    MemberReportItem("Ajoy kumar Roy", "SAM-102", "Rs.300", "Rs.300", "", "PAID"),
+                    MemberReportItem("Bharat chandra Roy", "SAM-103", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
+                    MemberReportItem("Dinabandhu Ghorai", "SAM-104", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
+                    MemberReportItem("Gopal chandra Ghorai", "SAM-105", "Rs.300", "Rs.300", "", "PAID"),
+                    MemberReportItem("Goutam Ghorai (B)", "SAM-106", "Rs.300", "Rs.300", "", "PAID"),
+                    MemberReportItem("Goutam Ghorai", "SAM-107", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
+                    MemberReportItem("Haradhan Ghorai", "SAM-108", "Rs.300", "Rs.300", "", "PAID"),
+                    MemberReportItem("Hemanta Ghorai", "SAM-109", "Rs.300", "Rs.300", "", "PAID"),
+                    MemberReportItem("Joykrishna Ghorai", "SAM-110", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
+                    MemberReportItem("Kamal Ghorai", "SAM-111", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
+                    MemberReportItem("Naba kumar Ghorai", "SAM-112", "Rs.300", "Rs.300", "", "PAID"),
+                    MemberReportItem("Rabindranath Ghorai", "SAM-113", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
+                    MemberReportItem("Rahul Ghorai", "SAM-114", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
+                    MemberReportItem("Shyamal Ghorai", "SAM-115", "Rs.300", "Rs.300", "", "PAID"),
+                    MemberReportItem("Tarun kumar Roy", "SAM-116", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
+                    MemberReportItem("Uttam Ghorai", "SAM-117", "Rs.300", "Rs.300", "", "PAID")
+                )
+            }
+
+            Scaffold(
+                containerColor = darkBackground,
+                topBar = {
+                    TopAppBar(
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = darkBackground),
+                        title = {
+                            Text(
+                                text = "Reports & Analytics",
+                                color = textLight,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        actions = {
+                            IconButton(onClick = { onNavigateToSettings?.invoke() }) {
+                                Icon(
+                                    imageVector = Icons.Default.Settings,
+                                    contentDescription = "Settings",
+                                    tint = purplePrimary
+                                )
+                            }
+                        }
+                    )
+                }
+            ) { paddingValues ->
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    item {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(20.dp),
+                            color = whiteCard
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = "Monthly Report (August 2026)",
+                                    color = Color(0xFF0F172A),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "All services group • Generated Live",
+                                    color = Color(0xFF64748B),
+                                    fontSize = 12.sp
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Button(
+                                        onClick = {},
+                                        modifier = Modifier.weight(1f).height(44.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = purplePrimary),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.PictureAsPdf,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                            tint = Color.White
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("Export PDF", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    }
+
+                                    OutlinedButton(
+                                        onClick = {},
+                                        modifier = Modifier.weight(1f).height(44.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.5.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.TableChart,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                            tint = purplePrimary
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("Export CSV", color = Color(0xFF1E293B), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Surface(
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(16.dp),
+                                color = cardBackground
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("TOTAL EXPECTED", color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        Icon(Icons.Default.Description, contentDescription = null, tint = purplePrimary, modifier = Modifier.size(16.dp))
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text("Rs. 5,100", color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+
+                            Surface(
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(16.dp),
+                                color = cardBackground
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("COLLECTED", color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = greenSuccess, modifier = Modifier.size(16.dp))
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text("Rs. 2,700", color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                    Text("53% collected", color = textMuted, fontSize = 10.sp)
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Text(
+                            text = "Report Records Preview",
+                            color = textMuted,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+
+                    items(membersList) { member ->
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp),
+                            color = whiteCard
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(14.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = member.name,
+                                        color = Color(0xFF0F172A),
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = member.code + " • Exp: " + member.exp,
+                                        color = Color(0xFF64748B),
+                                        fontSize = 12.sp
+                                    )
+                                }
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text(
+                                            text = "Paid: " + member.paid,
+                                            color = if (member.paid != "Rs.0") greenSuccess else Color(0xFF0F172A),
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        if (member.due != ""):
+                                            Text(
+                                                text = "Due: " + member.due,
+                                                color = redDanger,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                    }
+
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = if (member.status == "PAID") Color(0xFFECFDF5) else Color(0xFFFEF2F2)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(6.dp)
+                                                    .background(
+                                                        if (member.status == "PAID") greenSuccess else redDanger,
+                                                        shape = CircleShape
+                                         
