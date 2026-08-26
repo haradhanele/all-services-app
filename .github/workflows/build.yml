@@ -1,4 +1,4 @@
-name: Build Android APK from Zip
+                           name: Build Android APK from Zip
 
 on:
   push:
@@ -68,7 +68,7 @@ jobs:
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-    - name: Deep Replace Reports UI in All Matching Files
+    - name: Inject Pixel-Perfect Dark Reports Screen
       run: |
         find "$PROJECT_DIR" -type f \( -name "*Report*Screen*.kt" -o -name "*Reports*Screen*.kt" -o -name "*Financial*Screen*.kt" \) ! -name "*Exporter*" ! -name "*ViewModel*" | while read -r target; do
           PKG_LINE=$(grep "^package " "$target" | head -n 1)
@@ -80,9 +80,18 @@ jobs:
         PACKAGE_LINE_REPLACE
 
         import androidx.compose.foundation.background
+        import androidx.compose.foundation.border
         import androidx.compose.foundation.layout.*
         import androidx.compose.foundation.lazy.LazyColumn
+        import androidx.compose.foundation.lazy.items
+        import androidx.compose.foundation.shape.CircleShape
         import androidx.compose.foundation.shape.RoundedCornerShape
+        import androidx.compose.material.icons.Icons
+        import androidx.compose.material.icons.filled.CheckCircle
+        import androidx.compose.material.icons.filled.Description
+        import androidx.compose.material.icons.filled.PictureAsPdf
+        import androidx.compose.material.icons.filled.Settings
+        import androidx.compose.material.icons.filled.TableChart
         import androidx.compose.material3.*
         import androidx.compose.runtime.*
         import androidx.compose.ui.Alignment
@@ -92,138 +101,282 @@ jobs:
         import androidx.compose.ui.unit.dp
         import androidx.compose.ui.unit.sp
 
+        data class MemberReportItem(
+            val name: String,
+            val code: String,
+            val exp: String,
+            val paid: String,
+            val due: String,
+            val status: String
+        )
+
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun ReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            FinancialReportGlobalView()
+            PixelPerfectReportsUI(onNavigateToSettings)
         }
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun ReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            FinancialReportGlobalView()
+            PixelPerfectReportsUI(onNavigateToSettings)
         }
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun FinancialReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            FinancialReportGlobalView()
+            PixelPerfectReportsUI(onNavigateToSettings)
         }
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun FinancialReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            FinancialReportGlobalView()
+            PixelPerfectReportsUI(onNavigateToSettings)
         }
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
-        fun FinancialReportGlobalView() {
+        fun PixelPerfectReportsUI(onNavigateToSettings: (() -> Unit)? = null) {
+            val darkBackground = Color(0xFF0F172A)
+            val cardBackground = Color(0xFF1E293B)
+            val whiteCard = Color(0xFFFFFFFF)
+            val purplePrimary = Color(0xFF6366F1)
+            val greenSuccess = Color(0xFF10B981)
+            val redDanger = Color(0xFFEF4444)
+            val textLight = Color(0xFFF8FAFC)
+            val textMuted = Color(0xFF94A3B8)
+
+            val membersList = remember {
+                listOf(
+                    MemberReportItem("Anup kumar Roy", "SAM-101", "₹300", "₹300", "", "PAID"),
+                    MemberReportItem("Ajoy kumar Roy", "SAM-102", "₹300", "₹300", "", "PAID"),
+                    MemberReportItem("Bharat chandra Roy", "SAM-103", "₹300", "₹0", "₹300", "UNPAID"),
+                    MemberReportItem("Dinabandhu Ghorai", "SAM-104", "₹300", "₹0", "₹300", "UNPAID"),
+                    MemberReportItem("Gopal chandra Ghorai", "SAM-105", "₹300", "₹300", "", "PAID"),
+                    MemberReportItem("Goutam Ghorai (B)", "SAM-106", "₹300", "₹300", "", "PAID"),
+                    MemberReportItem("Goutam Ghorai", "SAM-107", "₹300", "₹0", "₹300", "UNPAID"),
+                    MemberReportItem("Haradhan Ghorai", "SAM-108", "₹300", "₹300", "", "PAID"),
+                    MemberReportItem("Hemanta Ghorai", "SAM-109", "₹300", "₹300", "", "PAID"),
+                    MemberReportItem("Joykrishna Ghorai", "SAM-110", "₹300", "₹0", "₹300", "UNPAID"),
+                    MemberReportItem("Kamal Ghorai", "SAM-111", "₹300", "₹0", "₹300", "UNPAID"),
+                    MemberReportItem("Naba kumar Ghorai", "SAM-112", "₹300", "₹300", "", "PAID"),
+                    MemberReportItem("Rabindranath Ghorai", "SAM-113", "₹300", "₹0", "₹300", "UNPAID"),
+                    MemberReportItem("Rahul Ghorai", "SAM-114", "₹300", "₹0", "₹300", "UNPAID"),
+                    MemberReportItem("Shyamal Ghorai", "SAM-115", "₹300", "₹300", "", "PAID"),
+                    MemberReportItem("Tarun kumar Roy", "SAM-116", "₹300", "₹0", "₹300", "UNPAID"),
+                    MemberReportItem("Uttam Ghorai", "SAM-117", "₹300", "₹300", "", "PAID")
+                )
+            }
+
             Scaffold(
+                containerColor = darkBackground,
                 topBar = {
                     TopAppBar(
-                        title = { Text("Financial Reports", fontWeight = FontWeight.Bold) }
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = darkBackground),
+                        title = {
+                            Text(
+                                text = "Reports & Analytics",
+                                color = textLight,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        },
+                        actions = {
+                            IconButton(onClick = { onNavigateToSettings?.invoke() }) {
+                                Icon(
+                                    imageVector = Icons.Default.Settings,
+                                    contentDescription = "Settings",
+                                    tint = purplePrimary
+                                )
+                            }
+                        }
                     )
                 }
-            ) { innerPadding ->
+            ) { paddingValues ->
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
-                        .padding(16.dp),
+                        .padding(paddingValues)
+                        .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            color = Color(0xFF1E3A8A)
-                        ) {
-                            Column(modifier = Modifier.padding(20.dp)) {
-                                Text(text = "Total Collected Fund", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
-                                Text(text = "Rs. 5,400.00", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(text = "Active Members: 17", color = Color.White, fontSize = 14.sp)
-                                    Text(text = "Target: Rs. 10,200", color = Color.White.copy(alpha = 0.9f), fontSize = 14.sp)
-                                }
-                            }
-                        }
-                    }
-
-                    item {
-                        Text(text = "Monthly Summary", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    }
-
-                    item {
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            color = Color(0xFFE2E8F0)
+                            shape = RoundedCornerShape(20.dp),
+                            color = whiteCard
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(text = "July 2026", fontWeight = FontWeight.SemiBold)
-                                    Text(text = "Rs. 2,700.00", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = "Monthly Report (August 2026)",
+                                    color = Color(0xFF0F172A),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "All services group • Generated Live",
+                                    color = Color(0xFF64748B),
+                                    fontSize = 12.sp
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Button(
+                                        onClick = {},
+                                        modifier = Modifier.weight(1f).height(44.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = purplePrimary),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.PictureAsPdf,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                            tint = Color.White
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("Export PDF", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    }
+
+                                    OutlinedButton(
+                                        onClick = {},
+                                        modifier = Modifier.weight(1f).height(44.dp),
+                                        shape = RoundedCornerShape(12.dp),
+                                        border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.5.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.TableChart,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                            tint = purplePrimary
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("Export CSV", color = Color(0xFF1E293B), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    }
                                 }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(text = "Paid: 9 Members | Due: 8 Members", fontSize = 12.sp)
-                                Divider(modifier = Modifier.padding(vertical = 8.dp))
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(text = "August 2026", fontWeight = FontWeight.SemiBold)
-                                    Text(text = "Rs. 2,700.00", color = Color(0xFF2E7D32), fontWeight = FontWeight.Bold)
-                                }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(text = "Paid: 9 Members | Due: 8 Members", fontSize = 12.sp)
                             }
                         }
                     }
 
                     item {
-                        Text(text = "Overall Status", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    }
-
-                    item {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
                             Surface(
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp),
-                                color = Color(0xFFE8F5E9)
+                                shape = RoundedCornerShape(16.dp),
+                                color = cardBackground
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
-                                    Text(text = "Paid Total", color = Color(0xFF2E7D32), fontSize = 12.sp)
-                                    Text(text = "Rs. 5,400", color = Color(0xFF1B5E20), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("TOTAL EXPECTED", color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        Icon(Icons.Default.Description, contentDescription = null, tint = purplePrimary, modifier = Modifier.size(16.dp))
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text("₹5,100", color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
 
                             Surface(
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp),
-                                color = Color(0xFFFFEBEE)
+                                shape = RoundedCornerShape(16.dp),
+                                color = cardBackground
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
-                                    Text(text = "Pending Due", color = Color(0xFFC62828), fontSize = 12.sp)
-                                    Text(text = "Rs. 4,800", color = Color(0xFFB71C1C), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("COLLECTED", color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = greenSuccess, modifier = Modifier.size(16.dp))
+                                    }
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text("₹2,700", color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                    Text("53% collected", color = textMuted, fontSize = 10.sp)
                                 }
                             }
                         }
                     }
-                }
-            }
-        }
-        EOF
-          sed -i "s|PACKAGE_LINE_REPLACE|$PKG_LINE|g" "$target"
-        done
 
-    - name: Clean and Build Fresh APK
-      run: |
-        cd "$PROJECT_DIR"
-        gradle clean
-        gradle assembleDebug -x validateSigningDebug --no-build-cache -Pkotlin.compiler.suppressKotlinVersionCompatibilityCheck=true --stacktrace
+                    item {
+                        Text(
+                            text = "Report Records Preview",
+                            color = textMuted,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: All-Services-Group-APK
-        path: "**/build/outputs/apk/**/*.apk"
-        
+                    items(membersList) { member ->
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp),
+                            color = whiteCard
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(14.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = member.name,
+                                        color = Color(0xFF0F172A),
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = "${member.code} • Exp: ${member.exp}",
+                                        color = Color(0xFF64748B),
+                                        fontSize = 12.sp
+                                    )
+                                }
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text(
+                                            text = "Paid: ${member.paid}",
+                                            color = if (member.paid != "₹0") greenSuccess else Color(0xFF0F172A),
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        if (member.due.isNotEmpty()) {
+                                            Text(
+                                                text = "Due: ${member.due}",
+                                                color = redDanger,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
+                                    }
+
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = if (member.status == "PAID") Color(0xFFECFDF5) else Color(0xFFFEF2F2)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(6.dp)
+                                                    .background(
+                                                        if (member.status == "PAID") greenSuccess else redDanger,
+                                                    
