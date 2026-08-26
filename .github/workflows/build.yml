@@ -68,21 +68,16 @@ jobs:
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-    - name: Clean Extra Custom Files and Safely Replace Reports Screen
+    - name: Deep Replace Reports UI in All Matching Files
       run: |
-        # Remove any previously generated duplicate files
-        find "$PROJECT_DIR" -name "FinancialReportsCustomView.kt" -delete || true
-
-        # Safely find and replace only the ReportsScreen file
-        TARGET_FILE=$(find "$PROJECT_DIR" -type f \( -name "ReportsScreen.kt" -o -name "ReportScreen.kt" \) ! -name "*Exporter*" ! -name "*ViewModel*" | head -n 1)
-        if [ -n "$TARGET_FILE" ]; then
-          PKG_LINE=$(grep "^package " "$TARGET_FILE" | head -n 1)
+        find "$PROJECT_DIR" -type f \( -name "*Report*Screen*.kt" -o -name "*Reports*Screen*.kt" -o -name "*Financial*Screen*.kt" \) ! -name "*Exporter*" ! -name "*ViewModel*" | while read -r target; do
+          PKG_LINE=$(grep "^package " "$target" | head -n 1)
           if [ -z "$PKG_LINE" ]; then
-            PKG_LINE="package com.example.ui.screens"
+            PKG_LINE="package com.aistudio.samitifund.ui.screens"
           fi
-          
-          cat << 'EOF' > "$TARGET_FILE"
-        PACKAGE_PLACEHOLDER
+
+          cat << 'EOF' > "$target"
+        PACKAGE_LINE_REPLACE
 
         import androidx.compose.foundation.background
         import androidx.compose.foundation.layout.*
@@ -100,18 +95,30 @@ jobs:
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun ReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            FinancialReportBody()
+            FinancialReportGlobalView()
         }
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun ReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
-            FinancialReportBody()
+            FinancialReportGlobalView()
         }
 
         @OptIn(ExperimentalMaterial3Api::class)
         @Composable
-        fun FinancialReportBody() {
+        fun FinancialReportScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
+            FinancialReportGlobalView()
+        }
+
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun FinancialReportsScreen(viewModel: Any? = null, onNavigateToSettings: (() -> Unit)? = null, onNavigateBack: () -> Unit = {}) {
+            FinancialReportGlobalView()
+        }
+
+        @OptIn(ExperimentalMaterial3Api::class)
+        @Composable
+        fun FinancialReportGlobalView() {
             Scaffold(
                 topBar = {
                     TopAppBar(
@@ -205,13 +212,14 @@ jobs:
             }
         }
         EOF
-          sed -i "s|PACKAGE_PLACEHOLDER|$PKG_LINE|g" "$TARGET_FILE"
-        fi
+          sed -i "s|PACKAGE_LINE_REPLACE|$PKG_LINE|g" "$target"
+        done
 
-    - name: Build APK
+    - name: Clean and Build Fresh APK
       run: |
         cd "$PROJECT_DIR"
-        gradle assembleDebug -x validateSigningDebug -Pkotlin.compiler.suppressKotlinVersionCompatibilityCheck=true --stacktrace
+        gradle clean
+        gradle assembleDebug -x validateSigningDebug --no-build-cache -Pkotlin.compiler.suppressKotlinVersionCompatibilityCheck=true --stacktrace
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
