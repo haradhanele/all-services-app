@@ -22,7 +22,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
-        gradle-version: '8.7'
+        gradle-version: '9.3.1'
 
     - name: Find and Extract ZIP
       run: |
@@ -74,7 +74,7 @@ jobs:
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-    - name: Create and Run Report Script
+    - name: Patch Dark Reports UI
       run: |
         cat << 'ENDFILE' > patch_reports.py
         import os
@@ -357,7 +357,7 @@ jobs:
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.Bold
                                         )
-                                        if (member.due != ""):
+                                        if member.due != "":
                                             Text(
                                                 text = "Due: " + member.due,
                                                 color = redDanger,
@@ -380,4 +380,4 @@ jobs:
                                                     .background(
                                                         if (member.status == "PAID") greenSuccess else redDanger,
                                                         shape = CircleShape
-                                         
+                                                
