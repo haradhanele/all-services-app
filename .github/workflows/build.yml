@@ -68,33 +68,9 @@ jobs:
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
 
-    - name: Clean Conflicting Overloads
+    - name: Clean Extra Custom Files
       run: |
         find "$PROJECT_DIR" -name "*CustomView*.kt" -delete || true
-
-    - name: Update Reports UI Screen
-      run: |
-        python3 -c "
-        import os, base64, gzip
-
-        b64 = 'H4sIAKZejmoC/+1b6W7jyBH+r6dghCQgAy2hy7LHwGRX5+wk9tiQPDP52yZbHXZpmp6R7fBgzA36Q/ox+kS2w+f9a7q7e8xIdvf8nF0EisQej+quruqq+qrvq0qff3N5eXk5qV29yU9qVxv8+fDwd1WbY/fF519dbS82v/jy2V318+6v6v39/331+c6ff3/y+a9/8wU8/2aHh+96T7e9e7z3bYff/663/e/m468mP83/g313+v3b08t3p3gZ95703r07xWd+d/r27c13/x97p2/x/OndjX/3e7x8e3p24y95+M27t6+x/R2e/oBvPtz87sff4fF3v9j4P+6evD29+fsffvv/0M3b2/93/eP/2N768h/+YmND73/n1q+N3ZPv3r21xW82rK0d3L15967j//vGzVvbP33r6+N7/33t3Vtv3tz90/efb38x/vv01n/653ff/f303/3+v/+b669//d/8w83p7b9e/3v3+t9s/d77N53x00+n/3/93/z03fX//Y83v/s7v//Xp6/fvrv55r//1/33f/r2e99fv/1w8/e//d//1dYfPnz/g2893f0bvvnn0//ff3P/x1+/ffPfvfXf3n3z1+fvfvn99//+y/ff//2rv//H68/5+z//m7//y+f/8w+f+e+/9f/5n64/3/r8b/729fXv/8eLz3/041//4v1P3/34k/e/evf2k299+ebNf/bX//ZPv373+bf+149/hU837z66/t8ffvrq1dtf/fR/f/jF25//8sUXf/XF05efv//w41//q6ff8ff/9e8+/sF/ff5Pv/j081+8ffvh53/566e//fF3b978/Q9//Pknv/30y9///m9+/+O/ePXj/+7Vj//6xeffevH008++ffr9f/f06bdfvHz1zZfv/vKzp599+31v48e/e/r5tz/77juff/kfvvr7f/L8F//5f/3j09/94Y8//Pz1h1e//8XvfvvTf/z2b37z179//e2Pfnry/T///rvf/f2Xb/7257/62eef/vYvPn/33U+f/vaf//2f//2f//2f//2f//2f/y+b/5/e3P787u517173Pz953PvT29v/1rvv/ZtG+7+v/zG+/8fNf5zfvv3Fh3//0+/99n1/+7N/9f5z3v8vL37++1/98WfvfvP/39b/d/sP97z653/5zff/1f1/f3n6w4ff/fT6n719+vGvf/z+r1598/0vf/b5p7/44Xfevfv2P/z641/9+e8//en//s/f/+rf/uzHf/V3v/m/v/3u+7/84v2Pf/7h05/85h8//fnvv/3uB//+2/dvvv/N//j93/78h9//m4//9pOP//rvf/jh009/98O/++5XP/72y//0b/3rn//g//z+B1/87tNvvv/hh598/oNP/v7V7z755E8/+tN//tMfffuLn/zoj370L/3k03/4t//w9a9++Zf+p7/8429//qN/4+/9zV//1h/87H/4k5/9H//77z/9R1/+0Z9884u/+KOf/eO//L9e/fqnn/zoxz/7Fz797r9/9vff//p3//2PP/nxH//gL/zFj/78h3//g09/9uOPP//051/87/4Xf+HjT3/83X/7P33y6eeffv75j3/0F/7Gv/z0k09+/tmf//in//J//PzHv/j0e3/vjz/75Lufffvpn377T7/9D3/66cff/e5PfvW3P//g0x//5vtvvv/133742c+/+O73/9u3v/v06c9f/ezX3/3Jj7/76U9/8Vdfvv/5t59+/7tffPH0p3/rJ//1f/z9n/z+w9P3f/2bf/DTH3z1L/3x7z/95Oef/p+/+0u/+z/80b/0D//59//x3/3pn//9v/zX/v53X//qN//h7//Zp7/9P/74N3/7v3n6/k9/+bOf/eW/8f77P/iHf/F//aXf/eGvf/iDP//yhz/47g///W9//qN//5e/97sffvP173/5w9d/9eXvf/O///vXP/7h7z/9zV/9+V/85k9++6Ovf/kfvvmrn/zB//T3f/dHf/T0pz/7s5/98W/+i9//6V/45A///f/x5z/7F/7qH/zob//k01//8Ndfvv7q9Zdf/vL9F198/Ytf/PSTr7/8wRef/vJffvHF3/tLv/z1r37x+w8///o3v/uLn//9X/z+57/7/X/y9e///W//4f3vfvO/fvPFt7/8pcfv/fN/+k8//b9+/d3f//tff/Hrv/zJt3/w+b/6+k9+/6N//V/6X/6Xf/W//V//9f/uF1/98v/7V37xH/3yv/Tff/7jX3r6nZ/+0fuff/wP//0vf/XjX3r35fvvfvPF59/9u5/+4qu//7/9r/7+H/3+pz/58e8+/vL//e3f/oN//Z/7w7/6R376V/69b7/8B1/9u7/w3/71v/7X/p+/9dOffvePPv77v/eTX/zx1//i15/8/U9/+c3n3/7e//vjT7745778H//b7/3o7/72P/kPfvQnn//o17/8h/7jTz/+r//D33/3T7777U9//5Mvf/fDX//0J7/1H/6nv/7+959885//49/9zbdfffyfvfr09z/66W9//NnTv/743//q48+ffvr7P3nx7//pP/oXvv3j7371w49//vT5X3v7P/9Hf/8v/uL3f/iTH3z6/e9/89s//4e/+tff/eXvv//06e9+8vnvf/u7//Hj7//yF//x//4f/tHvfvbL73/8177/9c9+/eX3v3z323/3N/6jX3v73//089/94m9+/U//8cff/t2f/P7ffPH7v/nhj3/19f/83/7pv/3eP/n9f/jHv/n5937400/+/k9++6Nv//pvf/kX3/3x9//4j/7B3//pLz/5/k/+/V/+7Y9//9vvffrffPLpT/72x9//m5988f1f/fDvf/u33/7i13/9yU9+/Nvv/9Wnn/z977/71ac/ef71X/r6q3/8q5/97qfv//wXf/U3/+bPv/7Fbz989dNvfvP5199//Ztf/faX7z79yU+/+fQnP//06ce/98m3n/7hX3zyy59+/93Xv/uL3/7+V598/qeffv3f/8V3v/mrv/fJ01988/VPf/rpT3/2228+/4efvv7R13/76fc/+ej73/y9b3780/feffO77z/84b/329/77KeffPnbf/v3//v//h989Oa3f/f5H/zwp1/96kdf/+7PfP3jT//oT3/49U//3vf/7h/+2adfff7rP/r3f/761z/9rff/9Pd+7ye/9Tvf//zbn7/67vd/8en3v/381adfffX3f/f7X/z+57/4F/7R01/5e7/8/V/+3U+/+sN/9/2P//Yvf/n9v/vVb/3Fv/43f/r3/vBPP//hP/36T776l7/5+c//8b/5q//Gv/eLv/4ff//Vd3/xN199+eVPf/Vnf/fPv/r+Z7/8g7//J1/86R9+8e3ffP31pz/59vv/+2c//d1Pv/69Tz//N198+bOP/6s//skvfvnTn/3V3/6Tf/l/ePrtz7754//8N/7Xf+X/9N3f/ev/+z/79375zTf/7j//559++NkvfvPZp99/8u7T//r1v/7eT37w9e//6U9+/Vdf//r19/7o5z/8vR9+/8O/9Zsf/uRPfv3bv/zhZ3/j3Y/e/P3Pv/mTP/34D/79v/273/vh97/95uNffPrxT379+z/85re//qM//4+/8+6Pv/v0hz//0Vf/+ve//9Uvf/3rf/X+N//k//iLn/3oD7774cc//eT3f/Xpb/35v//ff/vNn/zD33/y/vd+/1d///c+/ejjv/3Ff/z9v/5/fv3/AwX7bV0MAQA='
-        code = gzip.decompress(base64.b64decode(b64)).decode('utf-8')
-
-        pdir = os.environ.get('PROJECT_DIR', '.')
-        for root, dirs, files in os.walk(pdir):
-            for file in files:
-                if ('Report' in file or 'report' in file or 'Financial' in file) and file.endswith('.kt') and 'Exporter' not in file and 'ViewModel' not in file:
-                    fp = os.path.join(root, file)
-                    pkg = 'package com.example.ui.screens'
-                    with open(fp, 'r', encoding='utf-8', errors='ignore') as f:
-                        for line in f:
-                            if line.strip().startswith('package '):
-                                pkg = line.strip()
-                                break
-                    with open(fp, 'w', encoding='utf-8') as f:
-                        f.write(code.replace('package com.aistudio.samitifund.ui.screens', pkg))
-                    print('Successfully replaced:', fp)
-        "
 
     - name: Build APK
       run: |
