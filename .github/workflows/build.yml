@@ -74,14 +74,10 @@ jobs:
 
     - name: Update Reports UI Screen
       run: |
-        find "$PROJECT_DIR" -type f \( -name "*Report*Screen*.kt" -o -name "*Reports*Screen*.kt" \) ! -name "*Exporter*" ! -name "*ViewModel*" | while read -r rfile; do
-          PKG_LINE=$(grep "^package " "$rfile" | head -n 1)
-          if [ -z "$PKG_LINE" ]; then
-            PKG_LINE="package com.example.ui.screens"
-          fi
-          
-          cat << 'EOF' > "$rfile"
-        $PKG_LINE
+        python3 -c "
+        import os
+
+        code = '''PACKAGE_LINE
 
         import androidx.compose.foundation.background
         import androidx.compose.foundation.layout.*
@@ -145,23 +141,23 @@ jobs:
 
             val membersList = remember {
                 listOf(
-                    MemberReportItem("Anup kumar Roy", "SAM-101", "Rs.300", "Rs.300", "", "PAID"),
-                    MemberReportItem("Ajoy kumar Roy", "SAM-102", "Rs.300", "Rs.300", "", "PAID"),
-                    MemberReportItem("Bharat chandra Roy", "SAM-103", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
-                    MemberReportItem("Dinabandhu Ghorai", "SAM-104", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
-                    MemberReportItem("Gopal chandra Ghorai", "SAM-105", "Rs.300", "Rs.300", "", "PAID"),
-                    MemberReportItem("Goutam Ghorai (B)", "SAM-106", "Rs.300", "Rs.300", "", "PAID"),
-                    MemberReportItem("Goutam Ghorai", "SAM-107", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
-                    MemberReportItem("Haradhan Ghorai", "SAM-108", "Rs.300", "Rs.300", "", "PAID"),
-                    MemberReportItem("Hemanta Ghorai", "SAM-109", "Rs.300", "Rs.300", "", "PAID"),
-                    MemberReportItem("Joykrishna Ghorai", "SAM-110", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
-                    MemberReportItem("Kamal Ghorai", "SAM-111", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
-                    MemberReportItem("Naba kumar Ghorai", "SAM-112", "Rs.300", "Rs.300", "", "PAID"),
-                    MemberReportItem("Rabindranath Ghorai", "SAM-113", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
-                    MemberReportItem("Rahul Ghorai", "SAM-114", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
-                    MemberReportItem("Shyamal Ghorai", "SAM-115", "Rs.300", "Rs.300", "", "PAID"),
-                    MemberReportItem("Tarun kumar Roy", "SAM-116", "Rs.300", "Rs.0", "Rs.300", "UNPAID"),
-                    MemberReportItem("Uttam Ghorai", "SAM-117", "Rs.300", "Rs.300", "", "PAID")
+                    MemberReportItem('Anup kumar Roy', 'SAM-101', 'Rs.300', 'Rs.300', '', 'PAID'),
+                    MemberReportItem('Ajoy kumar Roy', 'SAM-102', 'Rs.300', 'Rs.300', '', 'PAID'),
+                    MemberReportItem('Bharat chandra Roy', 'SAM-103', 'Rs.300', 'Rs.0', 'Rs.300', 'UNPAID'),
+                    MemberReportItem('Dinabandhu Ghorai', 'SAM-104', 'Rs.300', 'Rs.0', 'Rs.300', 'UNPAID'),
+                    MemberReportItem('Gopal chandra Ghorai', 'SAM-105', 'Rs.300', 'Rs.300', '', 'PAID'),
+                    MemberReportItem('Goutam Ghorai (B)', 'SAM-106', 'Rs.300', 'Rs.300', '', 'PAID'),
+                    MemberReportItem('Goutam Ghorai', 'SAM-107', 'Rs.300', 'Rs.0', 'Rs.300', 'UNPAID'),
+                    MemberReportItem('Haradhan Ghorai', 'SAM-108', 'Rs.300', 'Rs.300', '', 'PAID'),
+                    MemberReportItem('Hemanta Ghorai', 'SAM-109', 'Rs.300', 'Rs.300', '', 'PAID'),
+                    MemberReportItem('Joykrishna Ghorai', 'SAM-110', 'Rs.300', 'Rs.0', 'Rs.300', 'UNPAID'),
+                    MemberReportItem('Kamal Ghorai', 'SAM-111', 'Rs.300', 'Rs.0', 'Rs.300', 'UNPAID'),
+                    MemberReportItem('Naba kumar Ghorai', 'SAM-112', 'Rs.300', 'Rs.300', '', 'PAID'),
+                    MemberReportItem('Rabindranath Ghorai', 'SAM-113', 'Rs.300', 'Rs.0', 'Rs.300', 'UNPAID'),
+                    MemberReportItem('Rahul Ghorai', 'SAM-114', 'Rs.300', 'Rs.0', 'Rs.300', 'UNPAID'),
+                    MemberReportItem('Shyamal Ghorai', 'SAM-115', 'Rs.300', 'Rs.300', '', 'PAID'),
+                    MemberReportItem('Tarun kumar Roy', 'SAM-116', 'Rs.300', 'Rs.0', 'Rs.300', 'UNPAID'),
+                    MemberReportItem('Uttam Ghorai', 'SAM-117', 'Rs.300', 'Rs.300', '', 'PAID')
                 )
             }
 
@@ -172,7 +168,7 @@ jobs:
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = darkBg),
                         title = {
                             Text(
-                                text = "Reports & Analytics",
+                                text = 'Reports & Analytics',
                                 color = textLight,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
@@ -182,7 +178,7 @@ jobs:
                             IconButton(onClick = { onNavigateToSettings?.invoke() }) {
                                 Icon(
                                     imageVector = Icons.Default.Settings,
-                                    contentDescription = "Settings",
+                                    contentDescription = 'Settings',
                                     tint = purpleColor
                                 )
                             }
@@ -205,13 +201,13 @@ jobs:
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    text = "Monthly Report (August 2026)",
+                                    text = 'Monthly Report (August 2026)',
                                     color = Color(0xFF0F172A),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "All services group • Generated Live",
+                                    text = 'All services group • Generated Live',
                                     color = Color(0xFF64748B),
                                     fontSize = 12.sp
                                 )
@@ -235,7 +231,7 @@ jobs:
                                             tint = Color.White
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Export PDF", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                        Text('Export PDF', fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                                     }
 
                                     OutlinedButton(
@@ -251,7 +247,7 @@ jobs:
                                             tint = purpleColor
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Export CSV", color = Color(0xFF1E293B), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                        Text('Export CSV', color = Color(0xFF1E293B), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                                     }
                                 }
                             }
@@ -274,11 +270,11 @@ jobs:
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("TOTAL EXPECTED", color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        Text('TOTAL EXPECTED', color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                         Icon(Icons.Default.Description, contentDescription = null, tint = purpleColor, modifier = Modifier.size(16.dp))
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))
-                                    Text("Rs. 5,100", color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                    Text('Rs. 5,100', color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
 
@@ -293,12 +289,12 @@ jobs:
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("COLLECTED", color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        Text('COLLECTED', color = textMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                         Icon(Icons.Default.CheckCircle, contentDescription = null, tint = greenColor, modifier = Modifier.size(16.dp))
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))
-                                    Text("Rs. 2,700", color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                                    Text("53% collected", color = textMuted, fontSize = 10.sp)
+                                    Text('Rs. 2,700', color = textLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                                    Text('53% collected', color = textMuted, fontSize = 10.sp)
                                 }
                             }
                         }
@@ -306,7 +302,7 @@ jobs:
 
                     item {
                         Text(
-                            text = "Report Records Preview",
+                            text = 'Report Records Preview',
                             color = textMuted,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -336,7 +332,7 @@ jobs:
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = "${member.code} • Exp: ${member.exp}",
+                                        text = member.code + ' • Exp: ' + member.exp,
                                         color = Color(0xFF64748B),
                                         fontSize = 12.sp
                                     )
@@ -348,24 +344,23 @@ jobs:
                                 ) {
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text(
-                                            text = "Paid: ${member.paid}",
-                                            color = if (member.paid != "Rs.0") greenColor else Color(0xFF0F172A),
+                                            text = 'Paid: ' + member.paid,
+                                            color = if (member.paid != 'Rs.0') greenColor else Color(0xFF0F172A),
                                             fontSize = 13.sp,
                                             fontWeight = FontWeight.Bold
                                         )
-                                        if (member.due.isNotEmpty()) {
+                                        if (member.due != ''):
                                             Text(
-                                                text = "Due: ${member.due}",
+                                                text = 'Due: ' + member.due,
                                                 color = redColor,
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.SemiBold
                                             )
-                                        }
                                     }
 
                                     Surface(
                                         shape = RoundedCornerShape(6.dp),
-                                        color = if (member.status == "PAID") Color(0xFFECFDF5) else Color(0xFFFEF2F2)
+                                        color = if (member.status == 'PAID') Color(0xFFECFDF5) else Color(0xFFFEF2F2)
                                     ) {
                                         Row(
                                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
@@ -375,9 +370,14 @@ jobs:
                                                 modifier = Modifier
                                                     .size(6.dp)
                                                     .background(
-                                                        if (member.status == "PAID") greenColor else redColor,
+                                                        if (member.status == 'PAID') greenColor else redColor,
                                                         shape = CircleShape
                                                     )
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
-                                         
+                                            Text(
+                                                text = member.status,
+                                                color = if (member.status == 'PAID') greenColor else redColor,
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold
+                                           
