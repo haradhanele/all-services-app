@@ -22,23 +22,21 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
-        gradle-version: '9.3.1'
+        gradle-version: '8.7'
 
     - name: Find and Extract ZIP
       run: |
         ZIP_FILE=$(find . -maxdepth 2 -name "*.zip" | head -n 1)
         if [ -n "$ZIP_FILE" ]; then
-          echo "Extracting $ZIP_FILE"
+          echo "Extracting $ZIP_FILE..."
           unzip -o "$ZIP_FILE" -d extracted_app
-          SETTINGS_FILE=$(find extracted_app -name "settings.gradle*" | head -n 1)
-          if [ -n "$SETTINGS_FILE" ]; then
-            PROJECT_DIR=$(dirname "$SETTINGS_FILE")
-          else
-            PROJECT_DIR=$(find extracted_app -name "build.gradle*" | head -n 1 | xargs dirname)
-          fi
+          BUILD_FILE=$(find extracted_app -name "build.gradle*" | head -n 1)
+          PROJECT_DIR=$(dirname "$BUILD_FILE")
           echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
         else
-          echo "PROJECT_DIR=." >> $GITHUB_ENV
+          BUILD_FILE=$(find . -name "build.gradle*" | head -n 1)
+          PROJECT_DIR=$(dirname "$BUILD_FILE")
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
         fi
 
     - name: Replace App Name with All Services Group
@@ -70,8 +68,8 @@ jobs:
 
     - name: Inject Pixel Perfect Dark Reports Screen
       run: |
-        cat << 'EOF' > generate_reports.py
-        import os, glob
+        python3 - << 'EOF'
+        import os
 
         content = """package PLACEHOLDER_PKG
 
@@ -379,4 +377,5 @@ jobs:
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                           
+                                                text = member.status,
+                                 
