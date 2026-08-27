@@ -41,15 +41,6 @@ jobs:
           echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
-    - name: Replace App Name with All Services Group
-      run: |
-        find "$PROJECT_DIR" -type f \( -name "*.kt" -o -name "*.xml" -o -name "*.gradle*" \) | while read -r file; do
-          sed -i 's/Samiti Fund/All Services Group/g' "$file" || true
-          sed -i 's/SamitiFund/AllServicesGroup/g' "$file" || true
-          sed -i 's/Samiti fund/All services group/g' "$file" || true
-          sed -i 's/samiti fund/All services group/g' "$file" || true
-        done
-
     - name: Fix Keystore and Configs
       run: |
         mkdir -p ~/.android
@@ -80,6 +71,6 @@ jobs:
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: All-Services-Group-APK
+        name: Group-Ledger-APK
         path: "**/build/outputs/apk/**/*.apk"
         
