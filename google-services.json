@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "496611110810",
+    "project_id": "samiti-app-d4336",
+    "storage_bucket": "samiti-app-d4336.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496611110810:android:6e8d1b26a9e78d54e9d423",
+        "android_client_info": {
+          "package_name": "com.adr.groupledger"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPVxdEMHQTXn0IbaRseQCvRLob8S3cfII"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
