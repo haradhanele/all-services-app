@@ -50,20 +50,40 @@ jobs:
           cp ~/.android/debug.keystore "$app_dir/debug.keystore" || true
         done
 
-        # Find package name dynamically, fallback to com.adr.groupledger
-        PKG_NAME=$(grep -r "applicationId" "$PROJECT_DIR" | head -n 1 | sed -E 's/.*applicationId[ =]+["'\'']([^"'\'']+)["'\''].*/\1/' || true)
-        if [ -z "$PKG_NAME" ]; then
-          PKG_NAME=$(grep -r "namespace" "$PROJECT_DIR" | head -n 1 | sed -E 's/.*namespace[ =]+["'\'']([^"'\'']+)["'\''].*/\1/' || true)
-        fi
-        if [ -z "$PKG_NAME" ]; then
-          PKG_NAME="com.adr.groupledger"
-        fi
-        echo "Detected Package Name: $PKG_NAME"
+        cat << 'EOF' > /tmp/google-services.json
+        {
+          "project_info": {
+            "project_number": "123456789012",
+            "project_id": "app-mock",
+            "storage_bucket": "app-mock.appspot.com"
+          },
+          "client": [
+            {
+              "client_info": {
+                "mobilesdk_app_id": "1:123456789012:android:abcdef123456",
+                "android_client_info": {
+                  "package_name": "com.adr.groupledger"
+                }
+              },
+              "oauth_client": [],
+              "api_key": [
+                {
+                  "current_key": "mock_api_key"
+                }
+              ],
+              "services": {
+                "appinvite_service": {
+                  "other_platform_oauth_client": []
+                }
+              }
+            }
+          ],
+          "configuration_version": "1"
+        }
+        EOF
 
-        MOCK_JSON='{"project_info":{"project_number":"123456789012","project_id":"app-mock","storage_bucket":"app-mock.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:123456789012:android:abcdef123456","android_client_info":{"package_name":"'$PKG_NAME'"}},"oauth_client":[],"api_key":[{"current_key":"mock_api_key"}],"services":{"appinvite_service":{"other_platform_oauth_client":[]}}}],"configuration_version":"1"}'
-        
         find "$PROJECT_DIR" -maxdepth 3 -type d -name "app" | while read -r app_dir; do
-          echo "$MOCK_JSON" > "$app_dir/google-services.json"
+          cp /tmp/google-services.json "$app_dir/google-services.json"
         done
 
         find "$PROJECT_DIR" -name "build.gradle*" | while read -r gfile; do
