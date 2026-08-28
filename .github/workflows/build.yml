@@ -50,7 +50,7 @@ jobs:
           cp ~/.android/debug.keystore "$app_dir/debug.keystore" || true
         done
 
-        MOCK_JSON='{"project_info":{"project_number":"123456789012","project_id":"samiti-app-mock","storage_bucket":"samiti-app-mock.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:123456789012:android:abcdef123456","android_client_info":{"package_name":"com.aistudio.samitifund.mgxpqr"}},"oauth_client":[],"api_key":[{"current_key":"mock_api_key"}],"services":{"appinvite_service":{"other_platform_oauth_client":[]}}}],"configuration_version":"1"}'
+        MOCK_JSON='{"project_info":{"project_number":"123456789012","project_id":"samiti-app-mock","storage_bucket":"samiti-app-mock.appspot.com"},"client":[{"client_info":{"mobilesdk_app_id":"1:123456789012:android:abcdef123456","android_client_info":{"package_name":"com.adr.groupladger"}},"oauth_client":[],"api_key":[{"current_key":"mock_api_key"}],"services":{"appinvite_service":{"other_platform_oauth_client":[]}}}],"configuration_version":"1"}'
         find "$PROJECT_DIR" -maxdepth 3 -type d -name "app" | while read -r app_dir; do
           echo "$MOCK_JSON" > "$app_dir/google-services.json"
         done
