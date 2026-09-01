@@ -22,7 +22,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
-        gradle-version: '9.3.1'
+        gradle-version: '8.7'
 
     - name: Find and Extract ZIP
       run: |
@@ -68,7 +68,7 @@ jobs:
     - name: Build APK
       run: |
         cd "$PROJECT_DIR"
-        gradle assembleDebug -x validateSigningDebug -Pkotlin.compiler.suppressKotlinVersionCompatibilityCheck=true --stacktrace
+        gradle assembleDebug -x validateSigningDebug -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.daemon=false --stacktrace
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
