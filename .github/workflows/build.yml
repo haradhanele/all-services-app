@@ -22,7 +22,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
       with:
-        gradle-version: '8.7'
+        gradle-version: '9.3.1'
 
     - name: Find and Extract ZIP
       run: |
@@ -41,7 +41,7 @@ jobs:
           echo "PROJECT_DIR=." >> $GITHUB_ENV
         fi
 
-    - name: Fix Keystore and Copy Firebase Config
+    - name: Fix Keystore, Configs and KSP Settings
       run: |
         mkdir -p ~/.android
         keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
@@ -57,6 +57,10 @@ jobs:
           done
         fi
 
+        # Fix KSP crash on Gradle 9+
+        echo "org.gradle.jvmargs=-Xmx4g -Djava.awt.headless=true" >> "$PROJECT_DIR/gradle.properties"
+        echo "ksp.incremental=false" >> "$PROJECT_DIR/gradle.properties"
+
         find "$PROJECT_DIR" -name "build.gradle*" | while read -r gfile; do
           sed -i '/signingConfig signingConfigs.debug/d' "$gfile" || true
         done
@@ -68,7 +72,7 @@ jobs:
     - name: Build APK
       run: |
         cd "$PROJECT_DIR"
-        gradle assembleDebug -x validateSigningDebug -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.daemon=false --stacktrace
+        gradle assembleDebug -x validateSigningDebug -Djava.awt.headless=true -Pkotlin.compiler.suppressKotlinVersionCompatibilityCheck=true --stacktrace
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
